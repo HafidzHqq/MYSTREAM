@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { AnimeSection } from "@/components/home/AnimeSection";
 import { SectionSkeleton } from "@/components/ui/AnimeCardSkeleton";
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface AnimeRaw {
   slug?: string;
@@ -42,14 +43,14 @@ export default function HomePage() {
     async function loadData() {
       try {
         const [ongRes, akRes, samRes] = await Promise.all([
-          fetch("/api/anime/ongoing"),
-          fetch("/api/anime/home"), // akompi/home maps here
-          fetch("/api/anime/completed") // samehadaku/home backup
+          animeClientApi.ongoing(1),
+          animeClientApi.akompiHome(),
+          animeClientApi.completed(1)
         ]);
 
-        const ongoingData = await ongRes.json();
-        const popularData = await akRes.json();
-        const sameData = await samRes.json();
+        const ongoingData: any = ongRes;
+        const popularData: any = akRes;
+        const sameData: any = samRes;
 
         const ongoingList = ongoingData?.data || ongoingData?.animeList || [];
         const akompiList = popularData?.data?.popular || popularData?.data?.ongoing || popularData?.data || [];

@@ -3,6 +3,7 @@ import { useState, useEffect, use } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
 import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { PaginationControls } from "@/components/ui/PaginationControls";
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
@@ -32,9 +33,8 @@ export default function OngoingPage({ searchParams }: PageProps) {
     async function load() {
       setLoading(true);
       try {
-        // Panggil proxy API internal, ini akan memanfaatkan browser fetch
-        const res = await fetch(`/api/anime/ongoing?page=${pageNum}`);
-        const data = await res.json();
+        // Panggil langsung dari browser ke API Sanka Vollerei
+        const data: any = await animeClientApi.ongoing(pageNum);
         const list = data?.data || data?.animeList || [];
         setItems(Array.isArray(list) ? list : []);
         setTotalPage(data?.totalPage || 1);
@@ -84,7 +84,7 @@ export default function OngoingPage({ searchParams }: PageProps) {
         ) : (
           <div className="text-center py-20 text-text-muted">
             <p className="text-lg">🌸 Data tidak dapat dimuat.</p>
-            <p className="text-sm mt-1">Provider sedang memblokir request IP server. Silakan coba beberapa saat lagi.</p>
+            <p className="text-sm mt-1">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
           </div>
         )}
       </div>

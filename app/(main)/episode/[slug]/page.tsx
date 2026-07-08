@@ -1,12 +1,10 @@
-import type { Metadata } from "next";
+"use client";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ChevronLeft, ChevronRight, Home, Server } from "lucide-react";
-import { animeApi } from "@/lib/api/anime";
+import { ChevronLeft, ChevronRight, Home, Loader2 } from "lucide-react";
 import { VideoPlayer } from "@/components/player/VideoPlayer";
 import { CommentSection } from "@/components/anime/CommentSection";
-
-export const dynamic = 'force-dynamic';
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -36,40 +34,47 @@ interface EpisodeData {
   downloads?: unknown;
 }
 
-interface ApiResponse {
-  data?: EpisodeData;
-}
+export default function EpisodePage({ params, searchParams }: PageProps) {
+  const resolvedParams = use(params);
+  const resolvedSearchParams = use(searchParams);
+  const slug = resolvedParams.slug;
+  const provider = resolvedSearchParams.provider || "otakudesu";
 
-async function getEpisode(slug: string, provider: string): Promise<EpisodeData | null> {
-  try {
-    let res: ApiResponse;
-    if (provider === "akompi") res = await animeApi.akompiEpisode(slug) as ApiResponse;
-    else if (provider === "samehadaku") res = await animeApi.samehadakuEpisode(slug) as ApiResponse;
-    else res = await animeApi.episodeDetail(slug) as ApiResponse;
-    return res?.data || null;
-  } catch {
-    return null;
+  const [episode, setEpisode] = useState<EpisodeData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const res: any = await animeClientApi.episodeDetail(slug);
+        setEpisode(res?.data || null);
+      } catch {
+        setEpisode(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+        <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
+      </div>
+    );
   }
-}
 
-export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const { provider = "otakudesu" } = await searchParams;
-  const ep = await getEpisode(slug, provider);
-  return {
-    title: ep?.title || "Tonton Episode",
-    robots: { index: false },
-  };
-}
+  if (!episode) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-xl font-bold text-text-primary">Episode Tidak Ditemukan</h1>
+        <Link href="/" className="mt-4 px-4 py-2 bg-accent-purple text-white rounded-lg">Kembali ke Beranda</Link>
+      </div>
+    );
+  }
 
-export default async function EpisodePage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
-  const { provider = "otakudesu" } = await searchParams;
-  const episode = await getEpisode(slug, provider);
-
-  if (!episode) notFound();
-
-  // Ekstrak server list menjadi flat array yang rapi dan seragam
   const resolvedServers: ServerItem[] = [];
 
   if (Array.isArray(episode.servers)) {
