@@ -1,19 +1,28 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { Server, ExternalLink, AlertCircle, Play } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Server, ExternalLink, AlertCircle, Play, Loader2 } from "lucide-react";
 import { clsx } from "clsx";
 
-interface StreamServer {
+interface ServerItem {
+  title?: string;
+  serverId?: string;
+  href?: string;
   name?: string;
   url?: string;
   iframe?: string;
-  serverName?: string;
   streamUrl?: string;
+}
+
+interface StreamServer {
+  title?: string;
+  serverList?: ServerItem[];
+  servers?: ServerItem[];
+  qualities?: { title?: string; serverList?: ServerItem[] }[];
 }
 
 interface VideoPlayerProps {
   streamUrl: string;
-  servers?: StreamServer[];
+  servers?: StreamServer | ServerItem[];
   episodeSlug?: string;
   animeSlug?: string;
   episodeTitle?: string;
@@ -27,64 +36,129 @@ export function VideoPlayer({
 }: VideoPlayerProps) {
   const [currentUrl, setCurrentUrl] = useState("");
   const [activeServer, setActiveServer] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [iframeError, setIframeError] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  // Normalisasikan server list
-  const allServers = [
-    ...(streamUrl ? [{ name: "Server Utama", url: streamUrl }] : []),
-    ...servers.map((s, i) => ({
-      name: s.name || s.serverName || `Server ${i + 2}`,
-      url: s.url || s.iframe || s.streamUrl || "",
-    })),
-  ].filter((s, i, arr) => s.url && arr.findIndex(x => x.url === s.url) === i);
+  // Normalisasikan daftar server dari bermacam format Sanka API
+  const [resolvedServers, setResolvedServers] = useState<{ name: string; url: string; id?: string }[]>([]);
 
   useEffect(() => {
-    if (allServers.length > 0) {
-      setCurrentUrl(allServers[0].url);
+    const list: { name: string; url: string; id?: string }[] = [];
+
+    // Tambahkan server utama bawaan
+    if (streamUrl) {
+      list.push({ name: "Server Utama", url: streamUrl });
+    }
+
+    // Ekstrak data server pendukung
+    if (Array.isArray(servers)) {
+      servers.forEach((s, i) => {
+        const url = s.url || s.iframe || s.streamUrl || "";
+        const id = s.serverId;
+        list.push({
+          name: s.name || s.title || `Server ${i + 2}`,
+          url: url,
+          id: id,
+        });
+      });
+    } else if (servers && typeof servers === "object") {
+      const sObj = servers as StreamServer;
+      const sList = sObj.serverList || sObj.servers || [];
+      if (Array.isArray(sList)) {
+        sList.forEach((s, i) => {
+          list.push({
+            name: s.title || s.name || `Server ${i + 2}`,
+            url: s.url || s.iframe || s.streamUrl || "",
+            id: s.serverId,
+          });
+        });
+      }
+
+      // Ambil dari format qualities jika ada
+      if (Array.isArray(sObj.qualities)) {
+        sObj.qualities.forEach((q) => {
+          const qTitle = q.title || "";
+          if (Array.isArray(q.serverList)) {
+            q.serverList.forEach((s) => {
+              list.push({
+                name: `${s.title || s.name} (${qTitle})`,
+                url: s.url || s.iframe || s.streamUrl || "",
+                id: s.serverId,
+              });
+            });
+          }
+        });
+      }
+    }
+
+    const unique = list.filter((s, i, arr) => (s.url || s.id) && arr.findIndex(x => (x.url && x.url === s.url) || (x.id && x.id === s.id)) === i);
+    setResolvedServers(unique);
+    if (unique.length > 0) {
+      setCurrentUrl(unique[0].url || "");
     }
   }, [streamUrl, servers]);
 
-  const handleServer = (url: string, index: number) => {
-    setCurrentUrl(url);
+  const handleServer = async (server: { name: string; url: string; id?: string }, index: number) => {
     setActiveServer(index);
     setIframeError(false);
+
+    // Jika server hanya memiliki ID, ambil url aslinya lewat proxy API
+    if (!server.url && server.id) {
+      setLoading(true);
+      try {
+        const res = await fetch(`/api/anime/server/${server.id}`);
+        const data = await res.json();
+        const resolvedUrl = data?.data?.url || data?.data?.iframe || data?.data?.streamUrl || "";
+        setCurrentUrl(resolvedUrl);
+      } catch {
+        setIframeError(true);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setCurrentUrl(server.url);
+    }
   };
 
-  // Cek apakah url adalah link video mp4 langsung
   const isDirectVideo = currentUrl.endsWith(".mp4") || currentUrl.includes(".mp4?") || currentUrl.includes("drive.google.com/file");
-  
-  // Cek apakah url memerlukan redirection luar (tidak bisa di-embed)
-  const isRedirectLink = currentUrl.includes("gofile.io") || currentUrl.includes("mega.nz") || currentUrl.includes("drive.google.com/open") || currentUrl.includes("odlink") || currentUrl.includes("desustream.me/odlink");
+  const isRedirectLink = currentUrl.includes("gofile.io") || currentUrl.includes("mega.nz") || currentUrl.includes("drive.google.com/open") || currentUrl.includes("odlink") || currentUrl.includes("desustream.me/odlink") || currentUrl.includes("desustream");
 
   return (
     <div className="rounded-2xl overflow-hidden bg-black border border-white/5 shadow-card">
       
       {/* Server Selector Header */}
-      <div className="flex items-center gap-2 p-3.5 bg-bg-card border-b border-white/5 overflow-x-auto scrollbar-hide">
-        <Server className="w-4 h-4 text-accent-purple flex-shrink-0" />
-        <span className="text-xs font-bold text-text-secondary flex-shrink-0 mr-2">Pilih Server Player:</span>
-        <div className="flex gap-2">
-          {allServers.map((server, i) => (
-            <button
-              key={i}
-              onClick={() => handleServer(server.url, i)}
-              className={clsx(
-                "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0",
-                activeServer === i
-                  ? "bg-accent-purple text-white shadow-glow"
-                  : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
-              )}
-            >
-              {server.name}
-            </button>
-          ))}
+      {resolvedServers.length > 1 && (
+        <div className="flex items-center gap-2 p-3.5 bg-bg-card border-b border-white/5 overflow-x-auto scrollbar-hide">
+          <Server className="w-4 h-4 text-accent-purple flex-shrink-0" />
+          <span className="text-xs font-bold text-text-secondary flex-shrink-0 mr-2">Pilih Server Player:</span>
+          <div className="flex gap-2">
+            {resolvedServers.map((server, i) => (
+              <button
+                key={i}
+                onClick={() => handleServer(server, i)}
+                className={clsx(
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0",
+                  activeServer === i
+                    ? "bg-accent-purple text-white shadow-glow"
+                    : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
+                )}
+              >
+                {server.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Player Display Area */}
-      <div className="relative video-container bg-bg-secondary w-full">
-        {currentUrl ? (
+      <div className="relative video-container bg-bg-secondary w-full min-h-[300px]">
+        {loading ? (
+          /* Loading State */
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-card gap-3">
+            <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
+            <p className="text-xs text-text-muted">Mengambil URL server video asli...</p>
+          </div>
+        ) : currentUrl ? (
           isDirectVideo ? (
             /* MP4 Direct Link Playback */
             <video
@@ -99,7 +173,7 @@ export function VideoPlayer({
               <Play className="w-16 h-16 text-accent-purple animate-pulse" />
               <h3 className="font-bold text-text-primary text-lg">Buka Link Pemutar Eksternal</h3>
               <p className="text-text-muted text-sm max-w-md">
-                Server ini ({allServers[activeServer]?.name}) menggunakan url download/pengarah eksternal yang tidak dapat diputar langsung di dalam web.
+                Server ini ({resolvedServers[activeServer]?.name}) menggunakan URL eksternal yang tidak dapat dimuat di dalam bingkai website kami.
               </p>
               <a
                 href={currentUrl}
@@ -114,7 +188,6 @@ export function VideoPlayer({
           ) : !iframeError ? (
             /* Standard Embed Iframe (With sandboxing to block ads & popups) */
             <iframe
-              ref={iframeRef}
               src={currentUrl}
               title={episodeTitle || "Episode Stream"}
               allowFullScreen
