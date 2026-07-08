@@ -1,121 +1,139 @@
-import type { Metadata } from "next";
+"use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Calendar, Clock } from "lucide-react";
-import { animeApi } from "@/lib/api/anime";
-import { clsx } from "clsx";
-
-export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = { title: "Jadwal Rilis Anime - AniStream" };
-
-const DAYS = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"];
-const DAY_EN = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+import { Calendar, Clock, Play } from "lucide-react";
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface ScheduleAnime {
-  slug?: string;
-  title?: string;
+  title: string;
+  slug: string;
   time?: string;
-  day?: string;
+  episode?: string;
 }
 
-interface ScheduleData {
-  [key: string]: ScheduleAnime[] | undefined;
+interface ScheduleDay {
+  day: string;
+  animeList: ScheduleAnime[];
 }
 
-interface ApiResponse {
-  data?: ScheduleData;
-}
+export default function SchedulePage() {
+  const [schedule, setSchedule] = useState<ScheduleDay[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function SchedulePage() {
-  let scheduleData: ScheduleData = {};
-  try {
-    const res = await animeApi.schedule() as ApiResponse;
-    scheduleData = res?.data || {};
-  } catch { /* empty */ }
+  // Get current day in Indonesian
+  const indonesianDays = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  const currentDayName = indonesianDays[new Date().getDay()];
 
-  const today = new Date().toLocaleDateString("en-US", { weekday: "long" }).toLowerCase();
-  const todayIndex = DAY_EN.indexOf(today);
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const data: any = await animeClientApi.schedule();
+        const list = data?.data || data?.scheduleList || [];
+        setSchedule(Array.isArray(list) ? list : []);
+      } catch {
+        setSchedule([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
 
   return (
     <div className="min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-black text-text-primary mb-2 flex items-center gap-3">
-            <Calendar className="w-8 h-8 text-accent-purple" />
-            Jadwal Rilis Anime
+          <h1 className="text-3xl font-display font-black text-text-primary mb-2 flex items-center gap-2">
+            📅 Jadwal Rilis Anime
           </h1>
-          <p className="text-text-muted text-sm">Jadwal update episode anime mingguan</p>
+          <p className="text-text-muted text-sm">Jadwal rilis episode terbaru anime ongoing mingguan</p>
         </div>
 
-        <div className="space-y-6">
-          {DAY_EN.map((dayEn, i) => {
-            const animes = scheduleData[dayEn] || scheduleData[DAYS[i]] || [];
-            const isToday = i === todayIndex;
-
-            return (
-              <div
-                key={dayEn}
-                className={clsx(
-                  "rounded-2xl border overflow-hidden",
-                  isToday
-                    ? "border-accent-purple/30 bg-accent-purple/5"
-                    : "border-white/5 bg-bg-card"
-                )}
-              >
-                {/* Day Header */}
-                <div className={clsx(
-                  "flex items-center gap-3 px-6 py-4 border-b",
-                  isToday ? "border-accent-purple/20" : "border-white/5"
-                )}>
-                  <div className={clsx(
-                    "w-2 h-2 rounded-full",
-                    isToday ? "bg-accent-purple" : "bg-text-muted"
-                  )} />
-                  <h2 className={clsx(
-                    "font-display font-bold text-lg",
-                    isToday ? "text-accent-purple" : "text-text-primary"
-                  )}>
-                    {DAYS[i]}
-                    {isToday && <span className="ml-2 text-xs font-normal text-accent-purple/70">(Hari ini)</span>}
-                  </h2>
-                  <span className="ml-auto text-xs text-text-muted">{animes.length} anime</span>
+        {loading ? (
+          <div className="space-y-8 animate-pulse">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="p-6 rounded-2xl bg-bg-card border border-white/5 space-y-4">
+                <div className="h-6 w-32 skeleton rounded-md" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <div key={j} className="h-16 skeleton rounded-xl" />
+                  ))}
                 </div>
-
-                {/* Anime List */}
-                {animes.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 p-4">
-                    {(animes as ScheduleAnime[]).map((anime) => (
-                      <Link
-                        key={anime.slug}
-                        href={`/anime/${anime.slug}`}
-                        className="flex items-center gap-3 p-3 rounded-xl bg-bg-primary/50 border border-white/5 hover:border-accent-purple/30 hover:bg-bg-overlay transition-all group"
-                      >
-                        <div className={clsx(
-                          "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-                          isToday ? "bg-accent-purple/20" : "bg-white/5"
-                        )}>
-                          <Clock className={clsx("w-4 h-4", isToday ? "text-accent-purple" : "text-text-muted")} />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-text-primary group-hover:text-accent-purple transition-colors line-clamp-1">
-                            {anime.title}
-                          </p>
-                          {anime.time && (
-                            <p className="text-xs text-text-muted">{anime.time}</p>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-6 py-4 text-sm text-text-muted italic">
-                    Tidak ada jadwal rilis
-                  </div>
-                )}
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        ) : schedule.length > 0 ? (
+          <div className="space-y-8">
+            {schedule.map((dayData) => {
+              const isToday = dayData.day.toLowerCase() === currentDayName.toLowerCase();
+              return (
+                <div
+                  key={dayData.day}
+                  className={`p-6 rounded-3xl border transition-all duration-300 ${
+                    isToday
+                      ? "bg-gradient-to-br from-accent-purple/10 to-accent-pink/5 border-accent-purple/30 shadow-[0_4px_20px_rgba(139,92,246,0.15)]"
+                      : "bg-bg-card border-white/5"
+                  }`}
+                >
+                  {/* Day Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-text-primary flex items-center gap-2">
+                      <Calendar className={`w-5 h-5 ${isToday ? "text-accent-purple" : "text-text-muted"}`} />
+                      Hari {dayData.day}
+                    </h2>
+                    {isToday && (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent-purple text-white shadow-glow animate-pulse">
+                        Hari Ini
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Anime List Grid */}
+                  {dayData.animeList && dayData.animeList.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {dayData.animeList.map((anime) => (
+                        <Link
+                          key={anime.slug}
+                          href={`/anime/${anime.slug}`}
+                          className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5 hover:border-accent-purple/30 hover:bg-bg-overlay transition-all group"
+                        >
+                          <div className="min-w-0 flex-1 mr-3">
+                            <h3 className="font-semibold text-sm text-text-primary group-hover:text-accent-purple transition-colors truncate">
+                              {anime.title}
+                            </h3>
+                            <div className="flex items-center gap-3 mt-1.5">
+                              {anime.time && (
+                                <span className="text-[10px] text-text-muted flex items-center gap-1 font-semibold">
+                                  <Clock className="w-3 h-3 text-accent-purple" /> {anime.time}
+                                </span>
+                              )}
+                              {anime.episode && (
+                                <span className="text-[10px] text-accent-purple font-extrabold uppercase">
+                                  {anime.episode}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-purple/20 transition-all">
+                            <Play className="w-3.5 h-3.5 text-text-secondary group-hover:text-accent-purple transition-colors fill-current" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-text-muted italic">Tidak ada rilis terjadwal untuk hari ini.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-20 text-text-muted">
+            <p className="text-lg">📅 Data jadwal rilis tidak dapat dimuat.</p>
+            <p className="text-sm mt-1">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
+          </div>
+        )}
       </div>
     </div>
   );

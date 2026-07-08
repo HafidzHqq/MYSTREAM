@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { animeApi } from "@/lib/api/anime";
+"use client";
+import { useState, useEffect, use } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
+import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { PaginationControls } from "@/components/ui/PaginationControls";
-
-export const dynamic = 'force-dynamic';
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -17,50 +17,58 @@ interface AnimeItem {
   poster?: string;
   thumbnail?: string;
   type?: string;
+  episode?: string;
+  latestEp?: string;
   score?: string;
 }
 
-interface ApiResponse {
-  data?: AnimeItem[] | { animeList?: AnimeItem[]; genreName?: string };
-  animeList?: AnimeItem[];
-  genreName?: string;
-  totalPage?: number;
-}
+export default function GenreDetailPage({ params, searchParams }: PageProps) {
+  const resolvedParams = use(params);
+  const resolvedSearchParams = use(searchParams);
+  const slug = resolvedParams.slug;
+  const pageNum = parseInt(resolvedSearchParams.page || "1");
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  return { title: `Anime Genre ${slug} - AniStream` };
-}
+  const [items, setItems] = useState<AnimeItem[]>([]);
+  const [totalPage, setTotalPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-export default async function GenreAnimePage({ params, searchParams }: PageProps) {
-  const { slug } = await params;
-  const { page } = await searchParams;
-  const pageNum = parseInt(page || "1");
-
-  let items: AnimeItem[] = [];
-  let totalPage = 1;
-  let genreName = slug;
-  try {
-    const res = await animeApi.genreAnime(slug, pageNum) as ApiResponse;
-    const d = res?.data;
-    if (Array.isArray(d)) {
-      items = d;
-    } else if (d && typeof d === "object") {
-      items = (d as { animeList?: AnimeItem[] }).animeList || [];
-      genreName = (d as { genreName?: string }).genreName || slug;
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const data: any = await animeClientApi.genreAnime(slug, pageNum);
+        const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
+        setItems(Array.isArray(list) ? list : []);
+        setTotalPage(data?.data?.totalPage || data?.totalPage || 1);
+      } catch {
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
     }
-    totalPage = res?.totalPage || 1;
-  } catch { /* empty */ }
+    load();
+  }, [slug, pageNum]);
+
+  // Title formatting helper
+  const genreTitle = slug.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
   return (
     <div className="min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-display font-black text-text-primary mb-2">
-            Genre: <span className="gradient-text capitalize">{genreName}</span>
+            📂 Genre: {genreTitle}
           </h1>
+          <p className="text-text-muted text-sm">Menampilkan semua anime dalam genre {genreTitle}</p>
         </div>
-        {items.length > 0 ? (
+
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <AnimeCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : items.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-10">
               {items.map((anime) => (
@@ -70,14 +78,19 @@ export default async function GenreAnimePage({ params, searchParams }: PageProps
                   title={anime.title || "Unknown"}
                   thumbnail={anime.poster || anime.thumbnail || ""}
                   type={anime.type}
+                  episode={anime.episode || anime.latestEp}
                   score={anime.score}
+                  provider="otakudesu"
                 />
               ))}
             </div>
             <PaginationControls currentPage={pageNum} totalPage={totalPage} baseUrl={`/genre/${slug}`} />
           </>
         ) : (
-          <div className="text-center py-20 text-text-muted"><p>Tidak ada anime untuk genre ini.</p></div>
+          <div className="text-center py-20 text-text-muted">
+            <p className="text-lg">📂 Genre anime gagal dimuat.</p>
+            <p className="text-sm mt-1">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
+          </div>
         )}
       </div>
     </div>
