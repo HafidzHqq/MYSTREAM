@@ -20,130 +20,143 @@ interface HeroBannerProps {
 }
 
 export function HeroBanner({ items }: HeroBannerProps) {
-  const [current, setCurrent] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const go = useCallback((index: number) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrent(index);
-      setIsTransitioning(false);
-    }, 300);
-  }, [isTransitioning]);
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % items.length);
+  }, [items.length]);
 
-  const next = useCallback(() => go((current + 1) % items.length), [current, items.length, go]);
-  const prev = useCallback(() => go((current - 1 + items.length) % items.length), [current, items.length, go]);
+  const prevSlide = () => {
+    setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
+  };
 
   useEffect(() => {
-    const interval = setInterval(next, 6000);
+    if (items.length <= 1) return;
+    const interval = setInterval(nextSlide, 7000); // 7s auto slide
     return () => clearInterval(interval);
-  }, [next]);
+  }, [items.length, nextSlide]);
 
-  if (!items.length) return null;
-  const item = items[current];
+  if (!items || items.length === 0) return null;
 
   return (
-    <div className="relative h-[85vh] min-h-[560px] max-h-[800px] overflow-hidden">
-      {/* Background Image */}
-      <div
-        className={clsx(
-          "absolute inset-0 transition-opacity duration-700",
-          isTransitioning ? "opacity-0" : "opacity-100"
-        )}
-      >
-        <Image
-          src={item.thumbnail}
-          alt={item.title}
-          fill
-          priority
-          className="object-cover object-center scale-105"
-          sizes="100vw"
-          unoptimized
-        />
-        {/* Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-r from-bg-primary via-bg-primary/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-transparent to-black/30" />
-      </div>
-
-      {/* Content */}
-      <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col justify-end pb-16">
-        <div
-          className={clsx(
-            "max-w-2xl transition-all duration-700",
-            isTransitioning ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
-          )}
-        >
-          {/* Type badge */}
-          {item.type && (
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-accent-purple/20 text-accent-purple border border-accent-purple/30 mb-3">
-              {item.type}
-            </span>
-          )}
-
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-display font-black text-text-primary leading-tight mb-3">
-            {item.title}
-          </h1>
-
-          {/* Score */}
-          {item.score && (
-            <div className="flex items-center gap-1 mb-4">
-              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-              <span className="text-yellow-400 font-semibold text-sm">{item.score}</span>
+    <div className="relative h-[60vh] md:h-[75vh] min-h-[450px] max-h-[700px] w-full overflow-hidden bg-black">
+      {/* Slides */}
+      {items.map((item, index) => {
+        const isActive = index === currentIndex;
+        return (
+          <div
+            key={item.slug}
+            className={clsx(
+              "absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out",
+              isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+            )}
+          >
+            {/* Backdrop Image */}
+            <div className="absolute inset-0 w-full h-full">
+              <Image
+                src={item.thumbnail}
+                alt={item.title}
+                fill
+                className="object-cover object-top filter brightness-[0.4] blur-[2px]"
+                priority={index === 0}
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-primary via-bg-primary/40 to-black/30" />
+              <div className="absolute inset-0 bg-gradient-to-r from-bg-primary via-transparent to-transparent hidden md:block" />
             </div>
-          )}
 
-          {/* Synopsis */}
-          {item.synopsis && (
-            <p className="text-text-secondary text-sm sm:text-base leading-relaxed line-clamp-3 mb-6">
-              {item.synopsis}
-            </p>
-          )}
+            {/* Content Container */}
+            <div className="absolute inset-0 flex items-end md:items-center">
+              <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-12 md:pb-0 pt-20">
+                <div className="max-w-2xl text-left">
+                  {/* Badge Row */}
+                  <div className="flex items-center gap-3 mb-4">
+                    {item.type && (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-accent-purple/20 text-accent-purple border border-accent-purple/30 backdrop-blur-md">
+                        {item.type}
+                      </span>
+                    )}
+                    {item.score && (
+                      <div className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 backdrop-blur-md">
+                        <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
+                        {parseFloat(item.score.toString()).toFixed(1)}
+                      </div>
+                    )}
+                    {item.provider && (
+                      <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/5 text-text-secondary border border-white/10 backdrop-blur-md">
+                        {item.provider}
+                      </span>
+                    )}
+                  </div>
 
-          {/* CTAs */}
-          <div className="flex items-center gap-3">
-            <Link
-              href={`/anime/${item.slug}?provider=${item.provider || "otakudesu"}`}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all duration-300 hover:scale-105"
-            >
-              <Play className="w-5 h-5 fill-white" />
-              Tonton Sekarang
-            </Link>
-            <Link
-              href={`/anime/${item.slug}?provider=${item.provider || "otakudesu"}`}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl glass border border-white/10 text-text-primary font-semibold hover:bg-white/10 transition-all duration-300"
-            >
-              <Info className="w-5 h-5" />
-              Detail
-            </Link>
+                  {/* Title */}
+                  <h1 className="text-3xl md:text-5xl lg:text-6xl font-display font-black text-text-primary tracking-tight leading-none mb-4 line-clamp-2 drop-shadow-md">
+                    {item.title}
+                  </h1>
+
+                  {/* Synopsis (hidden on tiny mobile) */}
+                  <p className="text-sm md:text-base text-text-secondary line-clamp-3 mb-8 leading-relaxed max-w-xl hidden sm:block">
+                    {item.synopsis || "Saksikan keseruan petualangan anime ini lengkap dengan sub indo berkualitas tinggi. Update rilis cepat dan server streaming lancar."}
+                  </p>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/anime/${item.slug}`}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-primary text-white font-bold hover:scale-105 transition-all duration-300 shadow-glow"
+                    >
+                      <Play className="w-4 h-4 fill-white" />
+                      Tonton Sekarang
+                    </Link>
+                    <Link
+                      href={`/anime/${item.slug}`}
+                      className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass text-text-primary font-bold hover:bg-white/10 hover:border-white/20 transition-all duration-300"
+                    >
+                      <Info className="w-4 h-4" />
+                      Detail Info
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        );
+      })}
 
-        {/* Slide indicators */}
-        <div className="absolute bottom-6 right-6 sm:right-10 flex items-center gap-3">
-          <button onClick={prev} className="p-2 rounded-full glass border border-white/10 hover:bg-white/10 transition-all">
-            <ChevronLeft className="w-4 h-4 text-text-primary" />
+      {/* Navigation Buttons (Only if > 1 item) */}
+      {items.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full glass hover:bg-white/10 text-white transition-all hover:scale-110"
+            aria-label="Previous slide"
+          >
+            <ChevronLeft className="w-6 h-6" />
           </button>
-          <div className="flex gap-1.5">
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 p-2 rounded-full glass hover:bg-white/10 text-white transition-all hover:scale-110"
+            aria-label="Next slide"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Dots Indicator */}
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
             {items.map((_, i) => (
               <button
                 key={i}
-                onClick={() => go(i)}
+                onClick={() => setCurrentIndex(i)}
                 className={clsx(
-                  "rounded-full transition-all duration-300",
-                  i === current
-                    ? "w-6 h-2 bg-accent-purple"
-                    : "w-2 h-2 bg-white/30 hover:bg-white/50"
+                  "h-1.5 rounded-full transition-all duration-300",
+                  i === currentIndex ? "w-6 bg-accent-purple" : "w-1.5 bg-white/40"
                 )}
+                aria-label={`Go to slide ${i + 1}`}
               />
             ))}
           </div>
-          <button onClick={next} className="p-2 rounded-full glass border border-white/10 hover:bg-white/10 transition-all">
-            <ChevronRight className="w-4 h-4 text-text-primary" />
-          </button>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

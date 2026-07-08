@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { AnimeCard } from "@/components/ui/AnimeCard";
+import { AnimeCard } from "../ui/AnimeCard";
 import { clsx } from "clsx";
 
 interface AnimeItem {
@@ -11,6 +11,7 @@ interface AnimeItem {
   status?: string;
   episode?: string;
   score?: string | number;
+  provider?: string;
 }
 
 interface AnimeSectionProps {
@@ -27,46 +28,52 @@ export function AnimeSection({
   subtitle,
   items,
   viewAllHref,
-  provider = "otakudesu",
+  provider,
   className,
 }: AnimeSectionProps) {
+  if (!items || items.length === 0) return null;
+
   return (
-    <section className={clsx("py-10", className)}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <div className="flex items-center gap-3 mb-1">
-              <div className="w-1 h-6 rounded-full bg-gradient-primary" />
-              <h2 className="text-xl sm:text-2xl font-display font-bold text-text-primary">
-                {title}
-              </h2>
-            </div>
-            {subtitle && (
-              <p className="text-text-muted text-sm ml-4">{subtitle}</p>
-            )}
-          </div>
-          {viewAllHref && (
-            <Link
-              href={viewAllHref}
-              className="flex items-center gap-1 text-sm text-accent-purple hover:text-blue-400 font-medium transition-colors group"
-            >
-              Lihat Semua
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
+    <section className={clsx("py-6", className)}>
+      {/* Section Header */}
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <h2 className="text-xl md:text-2xl font-display font-black text-text-primary tracking-tight">
+            {title}
+          </h2>
+          {subtitle && (
+            <p className="text-xs md:text-sm text-text-muted mt-1 font-medium">
+              {subtitle}
+            </p>
           )}
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {items.map((item) => (
-            <AnimeCard
-              key={item.slug}
-              {...item}
-              provider={provider}
-            />
-          ))}
-        </div>
+        {viewAllHref && (
+          <Link
+            href={viewAllHref}
+            className="flex items-center gap-1 text-xs md:text-sm font-semibold text-accent-purple hover:text-accent-pink transition-colors group"
+          >
+            Lihat Semua
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        )}
+      </div>
+
+      {/* Grid Container */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {items.map((anime) => (
+          <AnimeCard
+            key={anime.slug}
+            slug={anime.slug}
+            title={anime.title}
+            thumbnail={anime.thumbnail}
+            type={anime.type}
+            status={anime.status}
+            episode={anime.episode}
+            score={anime.score}
+            provider={provider}
+          />
+        ))}
       </div>
     </section>
   );
