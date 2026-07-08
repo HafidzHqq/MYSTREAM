@@ -18,13 +18,17 @@ export async function fetchAnime<T = unknown>(
       headers: defaultHeaders,
       next: { revalidate },
     });
+    
+    // Jangan throw error langsung agar web Next.js tidak crash (500) saat API luar down/404.
+    // Cukup kembalikan objek kosong/null.
     if (!res.ok) {
-      throw new Error(`API error ${res.status}: ${url}`);
+      console.warn(`[AnimeAPI] HTTP Warning ${res.status} on URL: ${url}`);
+      return {} as T;
     }
     return res.json() as Promise<T>;
   } catch (err) {
-    console.error('[AnimeAPI]', err);
-    throw err;
+    console.error('[AnimeAPI] Fetch Exception:', err);
+    return {} as T;
   }
 }
 
@@ -62,8 +66,9 @@ export const animeApi = {
   samehadakuDetail: (slug: string) => fetchAnime(`/samehadaku/detail/${slug}`),
   samehadakuEpisode: (slug: string) => fetchAnime(`/samehadaku/episode/${slug}`),
 
-  // Donghua (Chinese anime)
-  donghuaHome: () => fetchAnime('/dong/home'),
-  donghuaDetail: (slug: string) => fetchAnime(`/dong/detail/${slug}`),
-  donghuaEpisode: (slug: string) => fetchAnime(`/dong/episode/${slug}`),
+  // Donghua
+  donghuaHome: () => fetchAnime('/donghua/home'),
+  donghuaSearch: (q: string) => fetchAnime(`/donghua/search?q=${encodeURIComponent(q)}`),
+  donghuaDetail: (slug: string) => fetchAnime(`/donghua/detail/${slug}`),
+  donghuaEpisode: (slug: string) => fetchAnime(`/donghua/episode/${slug}`),
 };
