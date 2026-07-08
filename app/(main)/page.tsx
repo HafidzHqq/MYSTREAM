@@ -79,13 +79,13 @@ export default async function HomePage() {
     getSamehadakuHome(),
   ]);
 
-  const ongoingList = ongoingRaw.status === "fulfilled" ? ongoingRaw.value : [];
-  const akompi = akompiData.status === "fulfilled" ? akompiData.value as { ongoing?: AnimeRaw[], popular?: AnimeRaw[] } : {};
-  const samehadakuList = samehadakuRaw.status === "fulfilled" ? samehadakuRaw.value : [];
+  const ongoingList = ongoingRaw.status === "fulfilled" && Array.isArray(ongoingRaw.value) ? ongoingRaw.value : [];
+  const akompi = akompiData.status === "fulfilled" && akompiData.value && typeof akompiData.value === "object" ? akompiData.value as { ongoing?: AnimeRaw[], popular?: AnimeRaw[] } : {};
+  const samehadakuList = samehadakuRaw.status === "fulfilled" && Array.isArray(samehadakuRaw.value) ? samehadakuRaw.value : [];
 
-  const ongoing = ongoingList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "otakudesu"));
-  const popular = (akompi.popular || akompi.ongoing || []).slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "akompi"));
-  const samehadaku = samehadakuList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku"));
+  const ongoing = Array.isArray(ongoingList) ? ongoingList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "otakudesu")) : [];
+  const popular = akompi && Array.isArray(akompi.popular || akompi.ongoing) ? (akompi.popular || akompi.ongoing || []).slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "akompi")) : [];
+  const samehadaku = Array.isArray(samehadakuList) ? samehadakuList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : [];
 
   // Hero: pick best available items
   const heroItems = [...popular.slice(0, 5), ...ongoing.slice(0, 3)].filter(
