@@ -1,46 +1,8 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
+"use client";
+import { useState, useEffect } from "react";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { AnimeSection } from "@/components/home/AnimeSection";
 import { SectionSkeleton } from "@/components/ui/AnimeCardSkeleton";
-import { animeApi } from "@/lib/api/anime";
-
-export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = {
-  title: "AniStream - Nonton Anime Sub Indo Gratis",
-  description:
-    "Nonton anime sub indo terlengkap. Ongoing, completed, donghua, jadwal rilis, dan masih banyak lagi secara gratis di AniStream.",
-};
-
-// ─── Data Fetchers ──────────────────────────────────────────────────────────
-
-async function getOngoing() {
-  try {
-    const data = await animeApi.ongoing(1) as { data?: AnimeRaw[] };
-    return data?.data || [];
-  } catch {
-    return [];
-  }
-}
-
-async function getAkompiHome() {
-  try {
-    const data = await animeApi.akompiHome() as { data?: { ongoing?: AnimeRaw[], popular?: AnimeRaw[] } };
-    return data?.data || {};
-  } catch {
-    return {};
-  }
-}
-
-async function getSamehadakuHome() {
-  try {
-    const data = await animeApi.samehadakuHome() as { data?: AnimeRaw[] };
-    return data?.data || [];
-  } catch {
-    return [];
-  }
-}
 
 interface AnimeRaw {
   slug?: string;
@@ -70,33 +32,50 @@ function normalizeAnime(raw: AnimeRaw, provider: string) {
   };
 }
 
-// ─── Page ───────────────────────────────────────────────────────────────────
+export default function HomePage() {
+  const [ongoing, setOngoing] = useState<unknown[]>([]);
+  const [popular, setPopular] = useState<unknown[]>([]);
+  const [samehadaku, setSamehadaku] = useState<unknown[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function HomePage() {
-  const [ongoingRaw, akompiData, samehadakuRaw] = await Promise.allSettled([
-    getOngoing(),
-    getAkompiHome(),
-    getSamehadakuHome(),
-  ]);
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [ongRes, akRes, samRes] = await Promise.all([
+          fetch("/api/anime/ongoing"),
+          fetch("/api/anime/home"), // akompi/home maps here
+          fetch("/api/anime/completed") // samehadaku/home backup
+        ]);
 
-  const ongoingList = ongoingRaw.status === "fulfilled" && Array.isArray(ongoingRaw.value) ? ongoingRaw.value : [];
-  const akompi = akompiData.status === "fulfilled" && akompiData.value && typeof akompiData.value === "object" ? akompiData.value as { ongoing?: AnimeRaw[], popular?: AnimeRaw[] } : {};
-  const samehadakuList = samehadakuRaw.status === "fulfilled" && Array.isArray(samehadakuRaw.value) ? samehadakuRaw.value : [];
+        const ongoingData = await ongRes.json();
+        const popularData = await akRes.json();
+        const sameData = await samRes.json();
 
-  const ongoing = Array.isArray(ongoingList) ? ongoingList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "otakudesu")) : [];
-  const popular = akompi && Array.isArray(akompi.popular || akompi.ongoing) ? (akompi.popular || akompi.ongoing || []).slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "akompi")) : [];
-  const samehadaku = Array.isArray(samehadakuList) ? samehadakuList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : [];
+        const ongoingList = ongoingData?.data || ongoingData?.animeList || [];
+        const akompiList = popularData?.data?.popular || popularData?.data?.ongoing || popularData?.data || [];
+        const sameList = sameData?.data || sameData?.animeList || [];
 
-  // Hero: pick best available items with real thumbnails
+        setOngoing(Array.isArray(ongoingList) ? ongoingList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "otakudesu")) : []);
+        setPopular(Array.isArray(akompiList) ? akompiList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "akompi")) : []);
+        setSamehadaku(Array.isArray(sameList) ? sameList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
+      } catch (e) {
+        console.error("Home loading error:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
   const heroItems = [...popular.slice(0, 5), ...ongoing.slice(0, 3)].filter(
-    (a) => a.thumbnail && a.thumbnail.startsWith("http")
+    (a: any) => a.thumbnail && a.thumbnail.startsWith("http")
   );
 
   return (
     <div className="pb-16">
       {/* Hero Banner */}
-      {heroItems.length > 0 ? (
-        <HeroBanner items={heroItems} />
+      {!loading && heroItems.length > 0 ? (
+        <HeroBanner items={heroItems as any} />
       ) : (
         <div className="h-[50vh] min-h-[400px] bg-gradient-to-b from-bg-secondary to-bg-primary flex items-center justify-center border-b border-white/5">
           <div className="text-center px-4">
@@ -134,51 +113,55 @@ export default async function HomePage() {
 
       {/* Sections Container */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 space-y-12">
-        
-        {/* Section: Ongoing */}
-        <Suspense fallback={<SectionSkeleton />}>
-          {ongoing.length > 0 ? (
-            <AnimeSection
-              title="Sedang Tayang (Ongoing)"
-              subtitle="Update episode anime terbaru setiap harinya"
-              items={ongoing}
-              viewAllHref="/ongoing"
-              provider="otakudesu"
-            />
-          ) : (
-            <div className="py-10 text-center text-text-muted border border-white/5 rounded-2xl bg-bg-card/50">
-              Ongoing anime sedang memuat dari provider...
-            </div>
-          )}
-        </Suspense>
+        {loading ? (
+          <div className="space-y-10">
+            <SectionSkeleton />
+            <SectionSkeleton />
+          </div>
+        ) : (
+          <>
+            {/* Section: Ongoing */}
+            {ongoing.length > 0 && (
+              <AnimeSection
+                title="Sedang Tayang (Ongoing)"
+                subtitle="Update episode anime terbaru setiap harinya"
+                items={ongoing as any}
+                viewAllHref="/ongoing"
+                provider="otakudesu"
+              />
+            )}
 
-        {/* Section: Popular */}
-        <Suspense fallback={<SectionSkeleton />}>
-          {popular.length > 0 && (
-            <AnimeSection
-              title="Populer Pekan Ini"
-              subtitle="Paling banyak ditonton oleh wibu Indonesia"
-              items={popular}
-              viewAllHref="/completed"
-              provider="akompi"
-              className="bg-bg-secondary rounded-3xl p-6 md:p-8 border border-white/5"
-            />
-          )}
-        </Suspense>
+            {/* Section: Popular */}
+            {popular.length > 0 && (
+              <AnimeSection
+                title="Populer Pekan Ini"
+                subtitle="Paling banyak ditonton oleh wibu Indonesia"
+                items={popular as any}
+                viewAllHref="/completed"
+                provider="akompi"
+                className="bg-bg-secondary rounded-3xl p-6 md:p-8 border border-white/5"
+              />
+            )}
 
-        {/* Section: Samehadaku */}
-        <Suspense fallback={<SectionSkeleton />}>
-          {samehadaku.length > 0 && (
-            <AnimeSection
-              title="Rekomendasi Samehadaku"
-              subtitle="Anime pilihan editor terbaik Samehadaku"
-              items={samehadaku}
-              viewAllHref="/completed"
-              provider="samehadaku"
-            />
-          )}
-        </Suspense>
+            {/* Section: Samehadaku */}
+            {samehadaku.length > 0 && (
+              <AnimeSection
+                title="Rekomendasi Samehadaku"
+                subtitle="Anime pilihan editor terbaik Samehadaku"
+                items={samehadaku as any}
+                viewAllHref="/completed"
+                provider="samehadaku"
+              />
+            )}
 
+            {ongoing.length === 0 && popular.length === 0 && (
+              <div className="py-20 text-center text-text-muted border border-white/5 rounded-3xl bg-bg-card/30">
+                <p className="text-lg font-semibold">Gagal memuat katalog anime.</p>
+                <p className="text-sm mt-1">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );

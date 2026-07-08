@@ -1,11 +1,8 @@
-import type { Metadata } from "next";
-import { animeApi } from "@/lib/api/anime";
+"use client";
+import { useState, useEffect, use } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
+import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { PaginationControls } from "@/components/ui/PaginationControls";
-
-export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = { title: "Anime Ongoing - Sedang Tayang" };
 
 interface PageProps {
   searchParams: Promise<{ page?: string }>;
@@ -18,41 +15,55 @@ interface AnimeItem {
   poster?: string;
   thumbnail?: string;
   type?: string;
-  status?: string;
-  latestEp?: string;
   episode?: string;
+  latestEp?: string;
   score?: string;
 }
 
-interface ApiResponse {
-  data?: AnimeItem[];
-  animeList?: AnimeItem[];
-  totalPage?: number;
-}
+export default function OngoingPage({ searchParams }: PageProps) {
+  const resolvedParams = use(searchParams);
+  const pageNum = parseInt(resolvedParams.page || "1");
+  
+  const [items, setItems] = useState<AnimeItem[]>([]);
+  const [totalPage, setTotalPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-export default async function OngoingPage({ searchParams }: PageProps) {
-  const { page } = await searchParams;
-  const pageNum = parseInt(page || "1");
-
-  let items: AnimeItem[] = [];
-  let totalPage = 1;
-  try {
-    const data = await animeApi.ongoing(pageNum) as ApiResponse;
-    items = data?.data || data?.animeList || [];
-    totalPage = data?.totalPage || 1;
-  } catch { /* empty */ }
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        // Panggil proxy API internal, ini akan memanfaatkan browser fetch
+        const res = await fetch(`/api/anime/ongoing?page=${pageNum}`);
+        const data = await res.json();
+        const list = data?.data || data?.animeList || [];
+        setItems(Array.isArray(list) ? list : []);
+        setTotalPage(data?.totalPage || 1);
+      } catch {
+        setItems([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [pageNum]);
 
   return (
     <div className="min-h-screen py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-display font-black text-text-primary mb-2">
+          <h1 className="text-3xl font-display font-black text-text-primary mb-2 flex items-center gap-2">
             🔥 Anime Ongoing
           </h1>
           <p className="text-text-muted text-sm">Anime yang sedang update episode terbaru</p>
         </div>
 
-        {items.length > 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <AnimeCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : items.length > 0 ? (
           <>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-10">
               {items.map((anime) => (
@@ -62,8 +73,7 @@ export default async function OngoingPage({ searchParams }: PageProps) {
                   title={anime.title || "Unknown"}
                   thumbnail={anime.poster || anime.thumbnail || ""}
                   type={anime.type}
-                  status="Ongoing"
-                  episode={anime.latestEp || anime.episode}
+                  episode={anime.episode || anime.latestEp}
                   score={anime.score}
                   provider="otakudesu"
                 />
@@ -73,7 +83,8 @@ export default async function OngoingPage({ searchParams }: PageProps) {
           </>
         ) : (
           <div className="text-center py-20 text-text-muted">
-            <p>Data tidak tersedia saat ini. Coba refresh halaman.</p>
+            <p className="text-lg">🌸 Data tidak dapat dimuat.</p>
+            <p className="text-sm mt-1">Provider sedang memblokir request IP server. Silakan coba beberapa saat lagi.</p>
           </div>
         )}
       </div>
