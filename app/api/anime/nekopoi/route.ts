@@ -6,10 +6,15 @@ export async function GET(request: NextRequest) {
   const slug = searchParams.get('slug') || '';
 
   const BASE = process.env.ANIME_API_BASE || 'https://www.sankavollerei.web.id/anime';
-  const defaultHeaders = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+  
+  // Emulasikan Chrome asli secara penuh agar melewati proteksi Cloudflare
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'id-ID,id;q=0.9,en-US;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, br',
     'Referer': 'https://nekopoi.care/',
+    'Origin': 'https://nekopoi.care',
   };
 
   let url = `${BASE}/neko/home`;
@@ -19,12 +24,20 @@ export async function GET(request: NextRequest) {
 
   try {
     const res = await fetch(url, {
-      headers: defaultHeaders,
+      headers,
       next: { revalidate: 300 },
     });
+
+    if (!res.ok) {
+      console.warn(`[NekopoiAPI] Warning ${res.status} on URL: ${url}`);
+      return NextResponse.json({ data: [], warning: 'API returned non-ok status' });
+    }
+
     const data = await res.json();
     return NextResponse.json(data);
-  } catch {
-    return NextResponse.json({ error: 'Nekopoi API error', ok: false }, { status: 500 });
+  } catch (err) {
+    console.error('[NekopoiAPI] Fail:', err);
+    // Kembalikan objek data kosong agar UI website tetap sukses termuat tanpa error 500
+    return NextResponse.json({ data: [], error: 'Failed to fetch from source' });
   }
 }
