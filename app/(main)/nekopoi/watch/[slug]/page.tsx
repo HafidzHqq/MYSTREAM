@@ -1,11 +1,13 @@
-import { Suspense } from "react";
-import type { Metadata } from "next";
+"use client";
+import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { Play, ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { Play, ChevronLeft, ChevronRight, Home, Loader2 } from "lucide-react";
 import { VideoPlayer } from "@/components/player/VideoPlayer";
+import { animeClientApi } from "@/lib/api/animeClient";
 
-export const dynamic = 'force-dynamic';
+interface PageProps {
+  params: Promise<{ slug: string }>;
+}
 
 interface StreamServer {
   name?: string;
@@ -27,41 +29,44 @@ interface EpisodeData {
   qualities?: StreamServer[];
 }
 
-interface ApiResponse {
-  data?: EpisodeData;
-}
+export default function NekoEpisodePage({ params }: PageProps) {
+  const resolvedParams = use(params);
+  const slug = resolvedParams.slug;
 
-async function getNekoEpisode(slug: string): Promise<EpisodeData | null> {
-  try {
-    const BASE = process.env.ANIME_API_BASE || 'https://www.sankavollerei.web.id/anime';
-    const res = await fetch(`${BASE}/neko/episode/${slug}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Referer': 'https://nekopoi.care/',
-      },
-      next: { revalidate: 300 },
-    });
-    const data: ApiResponse = await res.json();
-    return data?.data || null;
-  } catch {
-    return null;
+  const [episode, setEpisode] = useState<EpisodeData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true);
+      try {
+        const res: any = await animeClientApi.nekoEpisode(slug);
+        setEpisode(res?.data || null);
+      } catch {
+        setEpisode(null);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-primary">
+        <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
+      </div>
+    );
   }
-}
 
-interface PageProps {
-  params: Promise<{ slug: string }>;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params;
-  return { title: `Nonton ${slug} | Nekopoi 18+`, robots: { index: false } };
-}
-
-export default async function NekoEpisodePage({ params }: PageProps) {
-  const { slug } = await params;
-  const episode = await getNekoEpisode(slug);
-
-  if (!episode) notFound();
+  if (!episode) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4">
+        <h1 className="text-xl font-bold text-text-primary">Konten Tidak Ditemukan</h1>
+        <Link href="/nekopoi" className="mt-4 px-4 py-2 bg-pink-600 text-white rounded-lg">Kembali ke Nekopoi</Link>
+      </div>
+    );
+  }
 
   const servers: StreamServer[] = episode.servers || episode.qualities || [];
   const defaultUrl = episode.defaultStreamingUrl || episode.streamingUrl || servers[0]?.url || servers[0]?.iframe || "";
@@ -84,16 +89,14 @@ export default async function NekoEpisodePage({ params }: PageProps) {
         </div>
 
         {/* Player */}
-        <Suspense fallback={<div className="video-container bg-bg-card rounded-2xl animate-pulse" />}>
-          <VideoPlayer
-            streamUrl={defaultUrl}
-            servers={servers}
-            episodeSlug={slug}
-            animeSlug={episode.animeSlug}
-            episodeTitle={episode.title}
-            provider="nekopoi"
-          />
-        </Suspense>
+        <VideoPlayer
+          streamUrl={defaultUrl}
+          servers={servers}
+          episodeSlug={slug}
+          animeSlug={episode.animeSlug}
+          episodeTitle={episode.title}
+          provider="nekopoi"
+        />
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-4 gap-4">

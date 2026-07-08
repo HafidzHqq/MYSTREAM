@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Play, AlertTriangle, Search } from "lucide-react";
+import { animeClientApi } from "@/lib/api/animeClient";
 
 interface NekoItem {
   slug?: string;
@@ -29,8 +30,8 @@ export default function NekopoiPage() {
   async function fetchHome() {
     setLoading(true);
     try {
-      const res = await fetch('/api/anime/nekopoi?type=home');
-      const data = await res.json();
+      // Direct browser-side fetch bypasses Cloudflare blocks
+      const data: any = await animeClientApi.nekoHome();
       const list = data?.data || data?.animeList || [];
       setItems(Array.isArray(list) ? list : []);
     } catch {
@@ -45,10 +46,12 @@ export default function NekopoiPage() {
     if (!searchQuery.trim()) return;
     setSearching(true);
     try {
-      const res = await fetch(`/api/anime/nekopoi?type=search&slug=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`https://www.sankavollerei.web.id/anime/neko/search?q=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       const list = data?.data || data?.animeList || [];
       setItems(Array.isArray(list) ? list : []);
+    } catch {
+      setItems([]);
     } finally {
       setSearching(false);
     }
@@ -143,7 +146,7 @@ export default function NekopoiPage() {
             {items.map((item, i) => (
               <Link
                 key={`${item.slug}-${i}`}
-                href={`/nekopoi/${item.slug || i}`}
+                href={`/nekopoi/watch/${item.slug || i}`}
                 className="group block"
               >
                 <div className="relative overflow-hidden rounded-2xl bg-bg-card border border-white/5 hover:border-pink-500/30 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(236,72,153,0.2)] hover:-translate-y-1">
