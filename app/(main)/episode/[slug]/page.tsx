@@ -13,11 +13,13 @@ interface PageProps {
   searchParams: Promise<{ provider?: string }>;
 }
 
-interface StreamServer {
+interface ServerItem {
+  title?: string;
   name?: string;
+  serverId?: string;
+  href?: string;
   url?: string;
   iframe?: string;
-  serverName?: string;
   streamUrl?: string;
 }
 
@@ -29,9 +31,9 @@ interface EpisodeData {
   nextEpisode?: string | { slug?: string };
   defaultStreamingUrl?: string;
   streamingUrl?: string;
-  servers?: StreamServer[];
-  qualities?: StreamServer[];
-  downloads?: StreamServer[];
+  servers?: ServerItem[];
+  qualities?: { title?: string; serverList?: ServerItem[] }[];
+  downloads?: unknown;
 }
 
 interface ApiResponse {
@@ -67,12 +69,36 @@ export default async function EpisodePage({ params, searchParams }: PageProps) {
 
   if (!episode) notFound();
 
-  const servers: StreamServer[] = episode.servers || episode.qualities || [];
-  const defaultUrl = episode.defaultStreamingUrl || episode.streamingUrl || servers[0]?.url || servers[0]?.iframe || "";
+  // Ekstrak server list menjadi flat array yang rapi dan seragam
+  const resolvedServers: ServerItem[] = [];
+
+  if (Array.isArray(episode.servers)) {
+    episode.servers.forEach(s => resolvedServers.push(s));
+  }
+
+  if (Array.isArray(episode.qualities)) {
+    episode.qualities.forEach(q => {
+      const qTitle = q.title || "";
+      if (Array.isArray(q.serverList)) {
+        q.serverList.forEach(s => {
+          resolvedServers.push({
+            title: `${s.title || s.name} (${qTitle})`,
+            serverId: s.serverId,
+            href: s.href,
+            url: s.url,
+            iframe: s.iframe,
+          });
+        });
+      }
+    });
+  }
+
+  const defaultUrl = episode.defaultStreamingUrl || episode.streamingUrl || resolvedServers[0]?.url || resolvedServers[0]?.iframe || "";
 
   const prevSlug = typeof episode.prevEpisode === "string"
     ? episode.prevEpisode
     : episode.prevEpisode?.slug;
+
   const nextSlug = typeof episode.nextEpisode === "string"
     ? episode.nextEpisode
     : episode.nextEpisode?.slug;
@@ -80,6 +106,7 @@ export default async function EpisodePage({ params, searchParams }: PageProps) {
   return (
     <div className="min-h-screen bg-bg-primary">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-text-muted mb-4">
           <Link href="/" className="hover:text-text-primary transition-colors flex items-center gap-1">
@@ -88,61 +115,53 @@ export default async function EpisodePage({ params, searchParams }: PageProps) {
           <span>/</span>
           {episode.animeSlug && (
             <>
-              <Link
-                href={`/anime/${episode.animeSlug}?provider=${provider}`}
-                className="hover:text-text-primary transition-colors truncate max-w-[200px]"
-              >
-                {episode.animeTitle}
+              <Link href={`/anime/${episode.animeSlug}`} className="hover:text-text-primary transition-colors">
+                {episode.animeTitle || "Detail Anime"}
               </Link>
               <span>/</span>
             </>
           )}
-          <span className="text-text-primary truncate max-w-[200px]">{episode.title}</span>
+          <span className="text-text-primary truncate">{episode.title}</span>
         </div>
 
         {/* Video Player */}
         <VideoPlayer
           streamUrl={defaultUrl}
-          servers={servers}
+          servers={resolvedServers}
           episodeSlug={slug}
           animeSlug={episode.animeSlug}
           episodeTitle={episode.title}
           provider={provider}
         />
 
-        {/* Episode Navigation */}
-        <div className="flex items-center justify-between mt-4 gap-4">
+        {/* Navigation & Controls */}
+        <div className="flex items-center justify-between mt-6 gap-4">
           {prevSlug ? (
             <Link
               href={`/episode/${prevSlug}?provider=${provider}`}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-white/10 text-text-secondary hover:text-text-primary hover:border-accent-purple/30 transition-all group"
             >
               <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-              Episode Sebelumnya
+              Eps Sebelumnya
             </Link>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
+
           {nextSlug ? (
             <Link
               href={`/episode/${nextSlug}?provider=${provider}`}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all group"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-primary text-white font-bold hover:shadow-glow transition-all group"
             >
-              Episode Selanjutnya
+              Eps Selanjutnya
               <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-          ) : <div />}
+          ) : (
+            <div />
+          )}
         </div>
 
-        {/* Server indicator */}
-        {servers.length > 0 && (
-          <div className="mt-4 p-3 rounded-xl glass border border-white/5">
-            <div className="flex items-center gap-2 text-sm text-text-muted">
-              <Server className="w-4 h-4" />
-              <span>Server tersedia: {servers.length} opsi. Gunakan tombol di atas player untuk mengganti.</span>
-            </div>
-          </div>
-        )}
-
-        {/* Comments */}
+        {/* Komentar Section */}
         <CommentSection episodeSlug={slug} />
       </div>
     </div>
