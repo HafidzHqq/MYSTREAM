@@ -35,9 +35,9 @@ export default function OngoingPage({ searchParams }: PageProps) {
       try {
         // Panggil langsung dari browser ke API Sanka Vollerei
         const data: any = await animeClientApi.ongoing(pageNum);
-        const list = data?.data || data?.animeList || [];
+        const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
         setItems(Array.isArray(list) ? list : []);
-        setTotalPage(data?.totalPage || 1);
+        setTotalPage(data?.data?.totalPage || data?.totalPage || 1);
       } catch {
         setItems([]);
       } finally {

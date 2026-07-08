@@ -52,9 +52,9 @@ export default function HomePage() {
         const popularData: any = akRes;
         const sameData: any = samRes;
 
-        const ongoingList = ongoingData?.data || ongoingData?.animeList || [];
-        const akompiList = popularData?.data?.popular || popularData?.data?.ongoing || popularData?.data || [];
-        const sameList = sameData?.data || sameData?.animeList || [];
+        const ongoingList = ongoingData?.data?.animeList || (Array.isArray(ongoingData?.data) ? ongoingData.data : (ongoingData?.animeList || []));
+        const akompiList = popularData?.data?.popular || popularData?.data?.ongoing || (Array.isArray(popularData?.data) ? popularData.data : (popularData?.data?.animeList || []));
+        const sameList = sameData?.data?.animeList || (Array.isArray(sameData?.data) ? sameData.data : (sameData?.animeList || []));
 
         setOngoing(Array.isArray(ongoingList) ? ongoingList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "otakudesu")) : []);
         setPopular(Array.isArray(akompiList) ? akompiList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "akompi")) : []);
