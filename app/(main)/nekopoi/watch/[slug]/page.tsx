@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import Link from "next/link";
-import { Play, ChevronLeft, ChevronRight, Home, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, Loader2 } from "lucide-react";
 import { VideoPlayer } from "@/components/player/VideoPlayer";
 import { animeClientApi } from "@/lib/api/animeClient";
 
@@ -21,8 +21,8 @@ interface EpisodeData {
   title?: string;
   animeTitle?: string;
   animeSlug?: string;
-  prevEpisode?: string | { slug?: string };
-  nextEpisode?: string | { slug?: string };
+  prevEpisode?: string | { slug?: string; url?: string };
+  nextEpisode?: string | { slug?: string; url?: string };
   defaultStreamingUrl?: string;
   streamingUrl?: string;
   servers?: StreamServer[];
@@ -36,13 +36,26 @@ export default function NekoEpisodePage({ params }: PageProps) {
   const [episode, setEpisode] = useState<EpisodeData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper to safely convert full URL to base64 for slug navigation
+  const getSlugFromUrl = (url?: string) => {
+    if (!url) return "";
+    try {
+      return btoa(url).replace(/\//g, "_").replace(/\+/g, "-");
+    } catch {
+      return "";
+    }
+  };
+
   useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const res: any = await animeClientApi.nekoEpisode(slug);
+        // Decode base64 slug to retrieve original endpoint URL
+        const decodedUrl = atob(slug.replace(/_/g, "/").replace(/-/g, "+"));
+        const res: any = await animeClientApi.nekoGet(decodedUrl);
         setEpisode(res?.data || null);
-      } catch {
+      } catch (err) {
+        console.error("Neko watch load fail:", err);
         setEpisode(null);
       } finally {
         setLoading(false);
@@ -63,6 +76,7 @@ export default function NekoEpisodePage({ params }: PageProps) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4">
         <h1 className="text-xl font-bold text-text-primary">Konten Tidak Ditemukan</h1>
+        <p className="text-text-muted text-sm mt-1">Gagal mendekode slug atau server Sanka sedang membatasi request.</p>
         <Link href="/nekopoi" className="mt-4 px-4 py-2 bg-pink-600 text-white rounded-lg">Kembali ke Nekopoi</Link>
       </div>
     );
@@ -71,8 +85,12 @@ export default function NekoEpisodePage({ params }: PageProps) {
   const servers: StreamServer[] = episode.servers || episode.qualities || [];
   const defaultUrl = episode.defaultStreamingUrl || episode.streamingUrl || servers[0]?.url || servers[0]?.iframe || "";
 
-  const prevSlug = typeof episode.prevEpisode === "string" ? episode.prevEpisode : episode.prevEpisode?.slug;
-  const nextSlug = typeof episode.nextEpisode === "string" ? episode.nextEpisode : episode.nextEpisode?.slug;
+  // Handle navigation slugs safely
+  const prevUrl = typeof episode.prevEpisode === "string" ? episode.prevEpisode : episode.prevEpisode?.url;
+  const nextUrl = typeof episode.nextEpisode === "string" ? episode.nextEpisode : episode.nextEpisode?.url;
+
+  const prevSlug = prevUrl ? getSlugFromUrl(prevUrl) : null;
+  const nextSlug = nextUrl ? getSlugFromUrl(nextUrl) : null;
 
   return (
     <div className="min-h-screen bg-bg-primary">
@@ -85,7 +103,7 @@ export default function NekoEpisodePage({ params }: PageProps) {
           <span>/</span>
           <Link href="/nekopoi" className="hover:text-pink-400 transition-colors">Nekopoi 18+</Link>
           <span>/</span>
-          <span className="text-text-primary truncate">{episode.title}</span>
+          <span className="text-text-primary truncate">{episode.title || "Detail Nonton"}</span>
         </div>
 
         {/* Player */}

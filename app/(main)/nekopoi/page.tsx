@@ -6,7 +6,6 @@ import { Play, AlertTriangle, Search } from "lucide-react";
 import { animeClientApi } from "@/lib/api/animeClient";
 
 interface NekoItem {
-  slug?: string;
   title?: string;
   poster?: string;
   thumbnail?: string;
@@ -14,6 +13,8 @@ interface NekoItem {
   type?: string;
   episode?: string;
   latestEp?: string;
+  url?: string;
+  otakudesuUrl?: string;
 }
 
 export default function NekopoiPage() {
@@ -30,7 +31,6 @@ export default function NekopoiPage() {
   async function fetchHome() {
     setLoading(true);
     try {
-      // Direct browser-side fetch bypasses Cloudflare blocks
       const data: any = await animeClientApi.nekoHome();
       const list = data?.data || data?.animeList || [];
       setItems(Array.isArray(list) ? list : []);
@@ -46,8 +46,7 @@ export default function NekopoiPage() {
     if (!searchQuery.trim()) return;
     setSearching(true);
     try {
-      const res = await fetch(`https://www.sankavollerei.web.id/anime/neko/search?q=${encodeURIComponent(searchQuery)}`);
-      const data = await res.json();
+      const data: any = await animeClientApi.nekoSearch(searchQuery);
       const list = data?.data || data?.animeList || [];
       setItems(Array.isArray(list) ? list : []);
     } catch {
@@ -57,7 +56,16 @@ export default function NekopoiPage() {
     }
   }
 
-  // Age verification gate
+  // Helper to safely convert full URL to base64 for slug navigation
+  const getSlugFromUrl = (url?: string) => {
+    if (!url) return "";
+    try {
+      return btoa(url).replace(/\//g, "_").replace(/\+/g, "-");
+    } catch {
+      return "";
+    }
+  };
+
   if (!ageConfirmed) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -97,11 +105,9 @@ export default function NekopoiPage() {
 
   return (
     <div className="min-h-screen py-10">
-      {/* Pink header glow */}
       <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-pink-900/20 to-transparent pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-1 h-7 rounded-full bg-gradient-to-b from-pink-500 to-rose-600" />
@@ -112,7 +118,6 @@ export default function NekopoiPage() {
           <p className="text-text-muted text-sm ml-4">Konten animasi dewasa - hanya untuk 18+</p>
         </div>
 
-        {/* Search */}
         <form onSubmit={handleSearch} className="relative mb-8 max-w-xl">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
           <input
@@ -128,7 +133,6 @@ export default function NekopoiPage() {
           </button>
         </form>
 
-        {/* Content Grid */}
         {loading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {Array.from({ length: 10 }).map((_, i) => (
@@ -143,48 +147,54 @@ export default function NekopoiPage() {
           </div>
         ) : items.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {items.map((item, i) => (
-              <Link
-                key={`${item.slug}-${i}`}
-                href={`/nekopoi/watch/${item.slug || i}`}
-                className="group block"
-              >
-                <div className="relative overflow-hidden rounded-2xl bg-bg-card border border-white/5 hover:border-pink-500/30 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(236,72,153,0.2)] hover:-translate-y-1">
-                  <div className="relative aspect-[2/3] overflow-hidden">
-                    {(item.poster || item.thumbnail || item.image) ? (
-                      <Image
-                        src={item.poster || item.thumbnail || item.image || ""}
-                        alt={item.title || ""}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        sizes="(max-width: 640px) 50vw, 20vw"
-                        unoptimized
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-bg-overlay flex items-center justify-center">
-                        <span className="text-4xl">🌸</span>
+            {items.map((item, i) => {
+              const urlKey = item.url || item.otakudesuUrl;
+              const slug = getSlugFromUrl(urlKey);
+              if (!slug) return null;
+
+              return (
+                <Link
+                  key={`${slug}-${i}`}
+                  href={`/nekopoi/watch/${slug}`}
+                  className="group block"
+                >
+                  <div className="relative overflow-hidden rounded-2xl bg-bg-card border border-white/5 hover:border-pink-500/30 transition-all duration-300 hover:shadow-[0_8px_30px_rgba(236,72,153,0.2)] hover:-translate-y-1">
+                    <div className="relative aspect-[2/3] overflow-hidden">
+                      {(item.poster || item.thumbnail || item.image) ? (
+                        <Image
+                          src={item.poster || item.thumbnail || item.image || ""}
+                          alt={item.title || ""}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-110"
+                          sizes="(max-width: 640px) 50vw, 20vw"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-bg-overlay flex items-center justify-center">
+                          <span className="text-4xl">🌸</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-bg-card to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                        <div className="w-12 h-12 rounded-full bg-pink-500/90 backdrop-blur flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.5)]">
+                          <Play className="w-5 h-5 text-white fill-white ml-1" />
+                        </div>
                       </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-bg-card to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                      <div className="w-12 h-12 rounded-full bg-pink-500/90 backdrop-blur flex items-center justify-center shadow-[0_0_20px_rgba(236,72,153,0.5)]">
-                        <Play className="w-5 h-5 text-white fill-white ml-1" />
-                      </div>
+                      {item.type && (
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-xs font-semibold bg-pink-500/90 text-white backdrop-blur-sm">
+                          {item.type}
+                        </span>
+                      )}
                     </div>
-                    {item.type && (
-                      <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md text-xs font-semibold bg-pink-500/90 text-white backdrop-blur-sm">
-                        {item.type}
-                      </span>
-                    )}
+                    <div className="p-3">
+                      <h3 className="font-semibold text-sm text-text-primary line-clamp-2 leading-snug group-hover:text-pink-400 transition-colors">
+                        {item.title}
+                      </h3>
+                    </div>
                   </div>
-                  <div className="p-3">
-                    <h3 className="font-semibold text-sm text-text-primary line-clamp-2 leading-snug group-hover:text-pink-400 transition-colors">
-                      {item.title}
-                    </h3>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-20">

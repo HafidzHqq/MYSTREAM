@@ -6,7 +6,6 @@ export async function fetchFromBrowser<T = unknown>(endpoint: string): Promise<T
     const res = await fetch(url, {
       method: 'GET',
       headers: {
-        // Headers ringan yang didukung CORS browser
         'Accept': 'application/json',
       }
     });
@@ -40,7 +39,8 @@ export const animeClientApi = {
   // Donghua
   donghuaHome: () => fetchFromBrowser('/donghua/home'),
   
-  // Nekopoi
-  nekoHome: () => fetchFromBrowser('/neko/home'),
-  nekoEpisode: (slug: string) => fetchFromBrowser(`/neko/episode/${slug}`),
+  // Nekopoi (Corrected)
+  nekoHome: () => fetchFromBrowser('/neko/latest'),
+  nekoSearch: (q: string) => fetchFromBrowser(`/neko/search/${encodeURIComponent(q)}`),
+  nekoGet: (videoUrl: string) => fetchFromBrowser(`/neko/get?url=${encodeURIComponent(videoUrl)}`),
 };
