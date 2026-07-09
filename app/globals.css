@@ -2,17 +2,17 @@
 
 @layer base {
   :root {
-    --bg-primary: #f4f4f0;
-    --bg-secondary: #ffffff;
-    --bg-card: #ffffff;
+    --bg-primary: #0B0F19;
+    --bg-secondary: #111827;
+    --bg-card: rgba(17, 24, 39, 0.7);
     --bg-overlay: rgba(0, 0, 0, 0.8);
-    --text-primary: #000000;
-    --text-secondary: #222222;
-    --text-muted: #555555;
-    --accent-purple: #c084fc;
-    --accent-blue: #60a5fa;
-    --accent-pink: #ff85b3;
-    --accent-yellow: #ffdc58;
+    --text-primary: #f9fafb;
+    --text-secondary: #d1d5db;
+    --text-muted: #9ca3af;
+    --accent-purple: #8b5cf6;
+    --accent-blue: #3b82f6;
+    --accent-pink: #ec4899;
+    --accent-yellow: #eab308;
   }
 }
 
@@ -21,66 +21,75 @@ body {
   color: var(--text-primary);
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-  /* Add a very subtle dotted background for that classic brutalist paper feel */
-  background-image: radial-gradient(#000000 1px, transparent 1px);
-  background-size: 24px 24px;
+  background-image: radial-gradient(circle at top right, rgba(139,92,246,0.1), transparent 40%),
+                    radial-gradient(circle at bottom left, rgba(59,130,246,0.1), transparent 40%);
+  background-attachment: fixed;
 }
 
-/* Base Brutalist Box */
-.brutal-box {
-  background-color: var(--bg-card);
-  border: 3px solid #000;
-  box-shadow: 4px 4px 0px 0px #000;
-  transition: all 0.2s ease-in-out;
-}
-
-/* Neobrutalism Hover Effect */
-.brutal-hover:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px 0px #000;
-}
-
-.brutal-hover:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0px 0px #000;
-}
-
-/* Glassmorphism Utilities (Overridden to Brutalism) */
+/* Glassmorphism Utilities */
 .glass {
-  background: #ffffff;
-  border: 3px solid #000;
-  box-shadow: 4px 4px 0px 0px #000;
+  background: rgba(17, 24, 39, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
-/* Premium Card Hover Glow (Overridden to Brutal Hover) */
+.glass-panel {
+  background: linear-gradient(145deg, rgba(31,41,55,0.7) 0%, rgba(17,24,39,0.8) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* Premium Card Hover Glow */
 .card-glow {
-  transition: all 0.2s ease-out;
-  border: 3px solid #000;
-  box-shadow: 4px 4px 0px 0px #000;
-}
-.card-glow:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 8px 8px 0px 0px #000;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Gradient Text (Overridden to solid bold text with brutal shadow) */
+.card-glow:hover {
+  transform: translateY(-4px) scale(1.02);
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+}
+
+/* Gradient Text */
 .gradient-text {
-  color: #000;
-  text-shadow: 3px 3px 0px var(--accent-pink);
+  background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 .bg-gradient-primary {
-  background: var(--accent-yellow);
-  border: 3px solid #000;
-  color: #000 !important;
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-blue) 100%);
+  color: #fff !important;
+  border: none;
 }
 
 .shadow-glow {
-  box-shadow: 4px 4px 0px 0px #000;
+  box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
 }
 
 .shadow-glow-blue {
-  box-shadow: 4px 4px 0px 0px #000;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+/* Base Brutalist Fallbacks (in case they are still used during migration) */
+.brutal-box {
+  background: linear-gradient(145deg, rgba(31,41,55,0.7) 0%, rgba(17,24,39,0.8) 100%);
+  backdrop-filter: blur(16px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2) !important;
+}
+
+.brutal-hover:hover {
+  transform: translateY(-4px) !important;
+  border: 1px solid rgba(139, 92, 246, 0.3) !important;
+  box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.2) !important;
 }
 
 /* Custom Video Aspect Container */
@@ -89,11 +98,12 @@ body {
   padding-bottom: 56.25%; /* 16:9 */
   height: 0;
   overflow: hidden;
-  border-radius: 0.5rem;
-  border: 3px solid #000;
-  box-shadow: 6px 6px 0px 0px #000;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
   background: #000;
 }
+
 .video-container iframe {
   position: absolute;
   top: 0;
@@ -103,14 +113,10 @@ body {
   border: 0;
 }
 
-/* Custom Skeleton Pulse (Harder pulse for brutalism) */
-@keyframes pulse-hard {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
+/* Custom Skeleton Pulse */
 .skeleton {
-  background: #e5e5e5;
-  border: 3px solid #000;
-  animation: pulse-hard 1s infinite step-end;
+  background: linear-gradient(90deg, rgba(31,41,55,0.5) 0%, rgba(55,65,81,0.5) 50%, rgba(31,41,55,0.5) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+  border: 1px solid rgba(255,255,255,0.05);
 }

@@ -38,11 +38,11 @@ export function AnimeSection({
       {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-black tracking-tight uppercase">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 tracking-tight">
             {title}
           </h2>
           {subtitle && (
-            <p className="text-sm md:text-base text-black font-bold mt-2 bg-white border-2 border-black px-2 py-1 inline-block">
+            <p className="text-sm md:text-base text-text-secondary font-medium mt-2">
               {subtitle}
             </p>
           )}
@@ -51,16 +51,16 @@ export function AnimeSection({
         {viewAllHref && (
           <Link
             href={viewAllHref}
-            className="inline-flex items-center justify-center gap-2 px-6 py-2 bg-white border-[3px] border-black text-black font-black uppercase tracking-wider brutal-hover hover:bg-accent-yellow shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-colors group"
+            className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white font-semibold border border-white/10 hover:border-white/20 transition-all group backdrop-blur-sm"
           >
             Lihat Semua
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform stroke-[3]" />
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         )}
       </div>
 
       {/* Grid Container */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6">
         {items.map((anime) => (
           <AnimeCard
             key={anime.slug}

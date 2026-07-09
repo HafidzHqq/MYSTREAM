@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
 import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
-import { Loader2 } from "lucide-react";
+import { Loader2, Flame } from "lucide-react";
 import { animeClientApi } from "@/lib/api/animeClient";
 
 interface AnimeItem {
@@ -65,25 +65,45 @@ export default function OngoingPage() {
   }, [page]);
 
   return (
-    <div className="min-h-screen py-10 bg-bg-primary mt-16 md:mt-20">
+    <div className="min-h-screen py-10 bg-bg-primary mt-14 md:mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 brutal-box bg-accent-yellow p-6 md:p-8">
-          <h1 className="text-3xl md:text-5xl font-black text-black mb-2 uppercase tracking-tighter">
-            🔥 Anime Ongoing
-          </h1>
-          <p className="text-black font-bold text-lg border-l-4 border-black pl-3 bg-white/50 inline-block pr-4 py-1">
-            Anime yang sedang tayang musim ini
-          </p>
+        
+        {/* Header Section */}
+        <div className="relative mb-12 rounded-3xl overflow-hidden glass border border-white/5 p-8 md:p-12">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-500/10" />
+          <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-500/20 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 p-[1px] shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+              <div className="w-full h-full rounded-2xl bg-bg-secondary flex items-center justify-center">
+                <Flame className="w-8 h-8 text-orange-500" />
+              </div>
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-3 tracking-tight">
+                Anime Ongoing
+              </h1>
+              <p className="text-text-secondary font-medium text-lg">
+                Daftar anime yang sedang tayang dan update episode terbaru musim ini.
+              </p>
+            </div>
+          </div>
         </div>
 
         {items.length === 0 && !loading ? (
-          <div className="text-center py-20 text-black brutal-box bg-white">
-            <p className="text-2xl font-black uppercase mb-2">🌸 Data tidak dapat dimuat.</p>
-            <p className="text-lg font-bold">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
+          <div className="text-center py-32 flex flex-col items-center justify-center glass-panel rounded-3xl border border-white/5">
+            <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
+              <span className="text-4xl">🌸</span>
+            </div>
+            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Data Tidak Ditemukan</h3>
+            <p className="text-text-muted text-lg max-w-md">Koneksi ke server bermasalah atau data kosong. Silakan periksa jaringan internet Anda.</p>
+            <button onClick={() => window.location.reload()} className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold transition-all border border-white/5 hover:border-white/20">
+              Muat Ulang
+            </button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 mb-12">
               {items.map((anime, index) => {
                 if (items.length === index + 1) {
                   return (
@@ -116,7 +136,7 @@ export default function OngoingPage() {
             </div>
             
             {loading && (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 mb-10">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 mb-12">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <AnimeCardSkeleton key={i} />
                 ))}
@@ -124,17 +144,17 @@ export default function OngoingPage() {
             )}
             
             {loading && items.length > 0 && (
-              <div className="flex justify-center py-6">
-                <div className="flex items-center gap-3 bg-white border-[3px] border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] px-6 py-3">
-                  <Loader2 className="w-6 h-6 animate-spin text-black" />
-                  <span className="text-lg font-black uppercase text-black">Memuat...</span>
+              <div className="flex justify-center py-8">
+                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-8 py-3.5 shadow-lg">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent-blue" />
+                  <span className="text-sm font-semibold text-white tracking-wide">Memuat data berikutnya...</span>
                 </div>
               </div>
             )}
             
             {!hasMore && items.length > 0 && (
-              <div className="text-center py-10">
-                <p className="text-black text-xl font-black uppercase bg-accent-pink border-[3px] border-black inline-block px-6 py-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="text-center py-12">
+                <p className="inline-block px-6 py-3 rounded-full bg-white/5 border border-white/10 text-text-muted text-sm font-medium">
                   Semua anime telah dimuat 🎉
                 </p>
               </div>

@@ -24,62 +24,72 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-white/5 mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-          {/* Brand */}
-          <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden relative bg-transparent">
-                <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
+    <footer className="mt-20 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary to-transparent z-0"></div>
+      <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-accent-purple/5 blur-[128px] z-0 rounded-full"></div>
+      <div className="absolute top-0 right-1/4 w-64 h-64 bg-accent-blue/5 blur-[100px] z-0 rounded-full"></div>
+      
+      <div className="relative z-10 border-t border-white/5 glass">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+            {/* Brand */}
+            <div className="col-span-2 md:col-span-1">
+              <Link href="/" className="flex items-center gap-3 mb-6 group">
+                <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-glow-blue">
+                  <Image src="/logo.jpg" alt="QQ.stream" fill className="object-cover" unoptimized />
+                </div>
+                <span className="text-2xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent-purple group-hover:to-accent-blue transition-all">
+                  QQ.stream
+                </span>
+              </Link>
+              <p className="text-text-muted text-sm leading-relaxed mb-6">
+                Platform streaming anime Indonesia terlengkap dengan desain antarmuka modern yang nyaman di mata.
+              </p>
+              <div className="flex items-center gap-3">
+                <a href="#" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 hover:-translate-y-1 text-text-secondary hover:text-white transition-all border border-white/5">
+                  <Globe className="w-5 h-5" />
+                </a>
+                <a href="#" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 hover:-translate-y-1 text-text-secondary hover:text-white transition-all border border-white/5">
+                  <MessageCircle className="w-5 h-5" />
+                </a>
+                <a href="#" className="p-2.5 rounded-xl bg-white/5 hover:bg-white/10 hover:-translate-y-1 text-text-secondary hover:text-white transition-all border border-white/5">
+                  <Play className="w-5 h-5" />
+                </a>
               </div>
-            </Link>
-            <p className="text-text-muted text-sm leading-relaxed mb-4">
-              Platform streaming anime Indonesia terlengkap. Nonton anime sub indo gratis.
-            </p>
-            <div className="flex items-center gap-3">
-              <a href="#" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-text-secondary hover:text-text-primary transition-all">
-                <Globe className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-text-secondary hover:text-text-primary transition-all">
-                <MessageCircle className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-text-secondary hover:text-text-primary transition-all">
-                <Play className="w-4 h-4" />
-              </a>
             </div>
+
+            {/* Links */}
+            {Object.entries(footerLinks).map(([title, links]) => (
+              <div key={title}>
+                <h3 className="text-base font-bold text-white mb-4">{title}</h3>
+                <ul className="space-y-3">
+                  {links.map((link) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="text-sm text-text-muted hover:text-accent-blue transition-colors flex items-center gap-2 group"
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-accent-blue/30 group-hover:bg-accent-blue transition-colors"></span>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          {/* Links */}
-          {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
-              <h3 className="text-sm font-semibold text-text-primary mb-3">{title}</h3>
-              <ul className="space-y-2">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-text-muted hover:text-text-primary transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-10 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-text-muted text-xs">
-            © {new Date().getFullYear()} QQ.stream. Data dari{" "}
-            <a href="https://www.sankavollerei.web.id/anime/" target="_blank" rel="noopener" className="text-accent-purple hover:underline">
-              Sanka Vollerei API
-            </a>
-          </p>
-          <p className="text-text-muted text-xs">
-            Dibuat dengan ❤️ untuk pecinta anime Indonesia
-          </p>
+          <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="text-text-muted text-xs">
+              © {new Date().getFullYear()} QQ.stream. Data from{" "}
+              <a href="https://www.sankavollerei.web.id/anime/" target="_blank" rel="noopener" className="text-accent-blue font-medium hover:underline">
+                Sanka Vollerei API
+              </a>
+            </p>
+            <p className="text-text-muted text-xs flex items-center gap-1">
+              Dibuat dengan <span className="text-accent-pink animate-pulse">❤️</span> untuk pecinta anime Indonesia
+            </p>
+          </div>
         </div>
       </div>
     </footer>

@@ -15,10 +15,10 @@ interface AnimeCardProps {
 }
 
 const providerColors: Record<string, string> = {
-  otakudesu: "bg-accent-pink text-black border-2 border-black",
-  akompi: "bg-accent-blue text-black border-2 border-black",
-  samehadaku: "bg-accent-yellow text-black border-2 border-black",
-  donghua: "bg-accent-green text-black border-2 border-black",
+  otakudesu: "bg-accent-pink/80 text-white backdrop-blur-sm",
+  akompi: "bg-accent-blue/80 text-white backdrop-blur-sm",
+  samehadaku: "bg-accent-purple/80 text-white backdrop-blur-sm",
+  donghua: "bg-accent-green/80 text-white backdrop-blur-sm",
 };
 
 export function AnimeCard({
@@ -41,15 +41,15 @@ export function AnimeCard({
 
   return (
     <Link href={href} className="group block h-full">
-      <div className="relative h-full flex flex-col overflow-hidden rounded-xl bg-white brutal-box brutal-hover">
+      <div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-bg-secondary/40 backdrop-blur-md border border-white/5 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-accent-purple/20 hover:border-white/10">
         {/* Aspect Ratio Container */}
-        <div className="relative aspect-[2/3] w-full overflow-hidden bg-gray-200 border-b-[3px] border-black">
+        <div className="relative aspect-[2/3] w-full overflow-hidden bg-bg-secondary/80">
           {thumbnail ? (
             <Image
               src={thumbnail}
               alt={title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
               unoptimized
             />
@@ -59,24 +59,27 @@ export function AnimeCard({
             </div>
           )}
 
-          {/* Hover Play Button (Brutalist style) */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 bg-black/40 backdrop-blur-sm">
-            <div className="w-14 h-14 rounded-full bg-accent-yellow border-4 border-black flex items-center justify-center transform scale-75 group-hover:scale-100 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] group-active:translate-y-1 group-active:translate-x-1 group-active:shadow-none">
-              <Play className="w-6 h-6 text-black fill-black ml-1" />
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary via-transparent to-transparent opacity-80" />
+
+          {/* Hover Play Button */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 bg-black/40 backdrop-blur-sm">
+            <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center transform scale-75 group-hover:scale-100 transition-all duration-300 ease-out group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]">
+              <Play className="w-6 h-6 text-white fill-white ml-1" />
             </div>
           </div>
 
           {/* Badge: Episode */}
           {episode && (
-            <span className="absolute bottom-2 left-2 px-2 py-1 text-xs font-black bg-white text-black border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+            <span className="absolute bottom-3 left-3 px-2 py-1 text-xs font-bold bg-black/60 text-white backdrop-blur-md rounded-lg border border-white/10">
               EP {episode}
             </span>
           )}
 
           {/* Badge: Rating */}
           {formattedScore && formattedScore !== "0.0" && (
-            <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 text-xs font-black bg-accent-yellow text-black border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-              <Star className="w-3.5 h-3.5 fill-black" />
+            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 text-xs font-bold bg-black/60 text-white backdrop-blur-md rounded-lg border border-white/10">
+              <Star className="w-3.5 h-3.5 fill-accent-yellow text-accent-yellow" />
               {formattedScore}
             </div>
           )}
@@ -84,7 +87,7 @@ export function AnimeCard({
           {/* Badge: Provider */}
           {provider && providerColors[provider] && (
             <span className={clsx(
-              "absolute top-2 right-2 px-2 py-1 text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]",
+              "absolute top-3 right-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-white/10 shadow-lg",
               providerColors[provider]
             )}>
               {provider}
@@ -93,14 +96,14 @@ export function AnimeCard({
         </div>
 
         {/* Info */}
-        <div className="p-3.5 flex-grow flex flex-col justify-between bg-white group-hover:bg-accent-pink transition-colors">
+        <div className="p-4 flex-grow flex flex-col justify-between z-10 bg-gradient-to-t from-bg-secondary to-transparent -mt-8 pt-10">
           <div>
             {type && (
-              <p className="text-[10px] font-black text-black uppercase tracking-wider mb-1 border-2 border-black inline-block px-1.5 bg-accent-cyan">
+              <p className="text-[10px] font-semibold text-accent-blue uppercase tracking-wider mb-1.5">
                 {type}
               </p>
             )}
-            <h3 className="font-black text-sm md:text-base text-black line-clamp-2 leading-tight group-hover:underline decoration-2 underline-offset-2">
+            <h3 className="font-bold text-sm md:text-base text-white line-clamp-2 leading-snug group-hover:text-accent-purple transition-colors">
               {title}
             </h3>
           </div>

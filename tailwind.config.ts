@@ -10,49 +10,48 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          primary: "#f4f4f0",
-          secondary: "#ffffff",
-          card: "#ffffff",
-          overlay: "rgba(0,0,0,0.8)",
+          primary: "#0B132B",
+          secondary: "#111C3A",
+          card: "rgba(17, 28, 58, 0.7)",
+          overlay: "rgba(11,19,43,0.8)",
         },
         accent: {
-          purple: "#c084fc", // keep name purple for backward compat, but use bold violet
-          blue: "#60a5fa",
-          pink: "#ff85b3",
-          yellow: "#ffdc58",
-          cyan: "#22d3ee",
-          green: "#86efac",
+          purple: "#8b5cf6",
+          blue: "#00E5FF", // Electric Cyan
+          pink: "#ec4899",
+          yellow: "#eab308",
+          cyan: "#00E5FF", // Electric Cyan
+          green: "#10b981",
         },
         text: {
-          primary: "#000000",
-          secondary: "#222222",
-          muted: "#555555",
+          primary: "#f9fafb",
+          secondary: "#d1d5db",
+          muted: "#6C7A89", // Steel Gray
         },
         border: {
-          DEFAULT: "#000000",
-          hover: "#000000",
+          DEFAULT: "rgba(108,122,137,0.2)",
+          hover: "rgba(0,229,255,0.3)",
         },
       },
       backgroundImage: {
-        "gradient-primary": "linear-gradient(135deg, #ffdc58 0%, #ff85b3 100%)",
-        "gradient-hero": "linear-gradient(to top, #f4f4f0 0%, transparent 60%)",
-        "gradient-card": "linear-gradient(to top, #ffffff 0%, transparent 50%)",
-        "gradient-dark": "none",
+        "gradient-primary": "linear-gradient(135deg, #0B132B 0%, #00E5FF 100%)",
+        "gradient-hero": "linear-gradient(to top, #0B132B 0%, transparent 80%)",
+        "gradient-card": "linear-gradient(to top, rgba(11,19,43,0.9) 0%, transparent 60%)",
+        "gradient-dark": "radial-gradient(circle at top right, rgba(0,229,255,0.15), transparent 40%)",
       },
       fontFamily: {
         sans: ["Outfit", "Inter", "system-ui", "sans-serif"],
         display: ["Outfit", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        brutal: "4px 4px 0px 0px rgba(0,0,0,1)",
-        "brutal-hover": "6px 6px 0px 0px rgba(0,0,0,1)",
-        "brutal-sm": "2px 2px 0px 0px rgba(0,0,0,1)",
-        "brutal-lg": "8px 8px 0px 0px rgba(0,0,0,1)",
-        // Keep old names mapped to brutalist shadows so we don't break everything instantly
-        glow: "4px 4px 0px 0px rgba(0,0,0,1)",
-        "glow-blue": "4px 4px 0px 0px rgba(0,0,0,1)",
-        card: "4px 4px 0px 0px rgba(0,0,0,1)",
-        "card-hover": "6px 6px 0px 0px rgba(0,0,0,1)",
+        brutal: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+        "brutal-hover": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+        "brutal-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        "brutal-lg": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+        glow: "0 0 20px rgba(139,92,246,0.3)",
+        "glow-blue": "0 0 20px rgba(59,130,246,0.3)",
+        card: "0 4px 6px -1px rgba(0,0,0,0.2)",
+        "card-hover": "0 10px 15px -3px rgba(0,0,0,0.3)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",
@@ -84,9 +83,9 @@ const config: Config = {
         },
       },
       borderRadius: {
-        xl: "0.5rem",
-        "2xl": "0.75rem",
-        "3xl": "1rem",
+        xl: "1rem",
+        "2xl": "1.5rem",
+        "3xl": "2rem",
       },
     },
   },
