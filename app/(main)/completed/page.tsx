@@ -26,8 +26,6 @@ export default function CompletedPage() {
   const [totalPage, setTotalPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [backgroundLoading, setBackgroundLoading] = useState(false);
-  const [targetMaxItems] = useState(500);
   
   // Filter state
   const [sortBy, setSortBy] = useState<SortOption>("terbaru");
@@ -67,10 +65,11 @@ export default function CompletedPage() {
   }, []);
 
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading || backgroundLoading) return;
+    if (!hasMore || loading) return;
     setLoading(true);
     
     try {
+      // Muat 3 halaman sekaligus tiap kali scroll mentok bawah (sekitar 45 anime)
       const { allNewItems, highestPageFetched, latestTotalPage } = await fetchBatch(page + 1, 3);
       
       setItems(prev => {
@@ -87,80 +86,50 @@ export default function CompletedPage() {
     } finally {
       setLoading(false);
     }
-  }, [hasMore, loading, backgroundLoading, page, totalPage, fetchBatch]);
+  }, [hasMore, loading, page, totalPage, fetchBatch]);
 
   const loadMoreRef = useCallback((node: HTMLDivElement) => {
-    if (loading || backgroundLoading) return;
+    if (loading) return;
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting && hasMore) {
         loadMore();
       }
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '400px' }); // Memicu sebelum pengguna benar-benar sampai bawah
 
     if (node) observer.current.observe(node);
-  }, [loading, backgroundLoading, hasMore, loadMore]);
+  }, [loading, hasMore, loadMore]);
 
-  // Initial load & Background mass-loader up to 500
+  // Initial load
   useEffect(() => {
     let isMounted = true;
-    async function massLoad() {
+    async function initialLoad() {
       setLoading(true);
-      setBackgroundLoading(true);
       try {
-        // Fast initial load of first 2 pages so UI isn't blocked
-        let currentItems: AnimeItem[] = [];
-        const initialRes = await fetchBatch(1, 2);
+        // Muat 4 halaman di awal agar layar terisi penuh (~60 anime)
+        const initialRes = await fetchBatch(1, 4);
         if (!isMounted) return;
         
-        currentItems = initialRes.allNewItems;
-        setItems(currentItems);
-        let currentPage = initialRes.highestPageFetched;
-        let currentTotalPage = initialRes.latestTotalPage;
+        const uniqueItems = Array.from(new Map(initialRes.allNewItems.map(item => [item.slug || item.animeId, item])).values());
         
-        setPage(currentPage);
-        setTotalPage(currentTotalPage);
-        setLoading(false); // UI is now unblocked and showing first items
-        
-        // Loop in background to fetch up to targetMaxItems
-        while (currentItems.length < targetMaxItems && currentPage < currentTotalPage) {
-          const batchRes = await fetchBatch(currentPage + 1, 3); // fetch 3 pages per batch
-          if (!isMounted || batchRes.allNewItems.length === 0) break;
-          
-          currentItems = [...currentItems, ...batchRes.allNewItems];
-          
-          // Deduplicate
-          const uniqueItems = Array.from(new Map(currentItems.map(item => [item.slug || item.animeId, item])).values());
-          currentItems = uniqueItems;
-          
-          setItems(uniqueItems);
-          currentPage = batchRes.highestPageFetched;
-          currentTotalPage = batchRes.latestTotalPage;
-          setPage(currentPage);
-          setTotalPage(currentTotalPage);
-          
-          // Slight delay to prevent rate-limiting or heavy browser lag
-          await new Promise(r => setTimeout(r, 500));
-        }
-        
-        setHasMore(currentPage < currentTotalPage);
+        setItems(uniqueItems);
+        setPage(initialRes.highestPageFetched);
+        setTotalPage(initialRes.latestTotalPage);
+        setHasMore(initialRes.highestPageFetched < initialRes.latestTotalPage);
       } catch {
         setHasMore(false);
       } finally {
-        if (isMounted) {
-          setLoading(false);
-          setBackgroundLoading(false);
-        }
+        if (isMounted) setLoading(false);
       }
     }
     
-    massLoad();
+    initialLoad();
     
     return () => {
       isMounted = false;
     };
-  }, [fetchBatch, targetMaxItems]);
+  }, [fetchBatch]);
 
   const displayedItems = useMemo(() => {
     let sorted = [...items];
@@ -269,24 +238,12 @@ export default function CompletedPage() {
               ))}
             </div>
             
-            {/* Background loading indicator */}
-            {backgroundLoading && items.length > 0 && (
-              <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
-                <div className="flex items-center gap-3 bg-bg-secondary/90 backdrop-blur-md border border-accent-blue/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(0,229,255,0.2)]">
-                  <Loader2 className="w-5 h-5 animate-spin text-accent-blue" />
-                  <span className="text-sm font-semibold text-white tracking-wide text-nowrap">
-                    Mengunduh hingga {targetMaxItems} anime... ({items.length})
-                  </span>
-                </div>
-              </div>
-            )}
-            
             {/* Intersection Observer target for infinite scrolling */}
-            {hasMore && !backgroundLoading && (
+            {hasMore && (
               <div ref={loadMoreRef} className="w-full h-20 bg-transparent" />
             )}
             
-            {loading && items.length > 0 && !backgroundLoading && (
+            {loading && items.length > 0 && (
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-8 py-3.5 shadow-lg">
                   <Loader2 className="w-5 h-5 animate-spin text-accent-green" />
@@ -295,7 +252,7 @@ export default function CompletedPage() {
               </div>
             )}
             
-            {!hasMore && !backgroundLoading && items.length > 0 && (
+            {!hasMore && items.length > 0 && (
               <div className="text-center py-12">
                 <p className="inline-block px-6 py-3 rounded-full bg-white/5 border border-white/10 text-text-muted text-sm font-medium">
                   Semua {items.length} anime telah dimuat 🎉
