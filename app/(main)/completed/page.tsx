@@ -206,7 +206,7 @@ export default function CompletedPage() {
           </div>
         )}
 
-        {items.length === 0 && !loading && !backgroundLoading ? (
+        {items.length === 0 && !loading ? (
           <div className="text-center py-32 flex flex-col items-center justify-center glass-panel rounded-3xl border border-white/5">
             <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
               <span className="text-4xl">🌸</span>
