@@ -44,8 +44,8 @@ export async function fetchAnime<T = unknown>(
 export const animeApi = {
   // Home / Ongoing / Completed (Default: Samehadaku)
   home: () => fetchAnime('/samehadaku/home'),
-  ongoing: (page = 1) => fetchAnime(`/samehadaku/ongoing?page=${page}`),
-  completed: (page = 1) => fetchAnime(`/samehadaku/completed?page=${page}`),
+  ongoing: (page = 1) => fetchAnime(`/samehadaku/ongoing?page=${page}&order=update`),
+  completed: (page = 1) => fetchAnime(`/samehadaku/completed?page=${page}&order=update`),
 
   // Search
   search: (q: string) => fetchAnime(`/samehadaku/search?q=${encodeURIComponent(q)}`),

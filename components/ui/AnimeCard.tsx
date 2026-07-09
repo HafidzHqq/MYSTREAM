@@ -83,16 +83,6 @@ export function AnimeCard({
               {formattedScore}
             </div>
           )}
-
-          {/* Badge: Provider */}
-          {provider && providerColors[provider] && (
-            <span className={clsx(
-              "absolute top-3 right-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wider rounded-lg border border-white/10 shadow-lg",
-              providerColors[provider]
-            )}>
-              {provider}
-            </span>
-          )}
         </div>
 
         {/* Info */}
