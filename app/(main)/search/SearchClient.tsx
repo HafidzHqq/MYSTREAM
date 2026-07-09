@@ -31,19 +31,26 @@ export default function SearchClient() {
     async function load() {
       setLoading(true);
       try {
-        const res = await animeClientApi.search(query);
+        const res: any = await animeClientApi.search(query);
         let combined: (SearchAnimeItem & { provider: string })[] = [];
 
         if (res) {
-          const data: any = res;
-          const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
-          if (Array.isArray(list)) {
-            combined = list.map((item: any) => ({ ...item, provider: "samehadaku" }));
+          // Samehadaku results (stored as 'otakudesu' key in backend route)
+          const sameList = res.otakudesu?.data?.animeList || res.otakudesu?.animeList || [];
+          if (Array.isArray(sameList)) {
+            combined = [...combined, ...sameList.map((item: any) => ({ ...item, provider: "samehadaku" }))];
+          }
+
+          // Akompi results
+          const akompiList = res.akompi?.data?.animeList || res.akompi?.animeList || [];
+          if (Array.isArray(akompiList)) {
+            combined = [...combined, ...akompiList.map((item: any) => ({ ...item, provider: "akompi" }))];
           }
         }
 
         setItems(combined);
-      } catch {
+      } catch (error) {
+        console.error("Search failed:", error);
         setItems([]);
       } finally {
         setLoading(false);
