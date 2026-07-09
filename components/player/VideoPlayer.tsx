@@ -206,8 +206,35 @@ export function VideoPlayer({
           </>
         )}
         
-        {/* Settings Button */}
+        {/* Rotate / Fullscreen Button */}
         <div className="ml-auto flex items-center gap-1.5 flex-shrink-0">
+          <button
+            onClick={async () => {
+              const container = document.getElementById('video-player-container');
+              if (!container) return;
+              try {
+                if (!document.fullscreenElement) {
+                  await container.requestFullscreen();
+                  if (screen.orientation && (screen.orientation as any).lock) {
+                    await (screen.orientation as any).lock("landscape").catch(() => {});
+                  }
+                } else {
+                  await document.exitFullscreen();
+                  if (screen.orientation && (screen.orientation as any).unlock) {
+                    (screen.orientation as any).unlock();
+                  }
+                }
+              } catch (err) {
+                console.error("Fullscreen/Rotation error:", err);
+              }
+            }}
+            className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-all"
+            title="Fullscreen & Rotate (HP)"
+          >
+            <Maximize className="w-4 h-4 text-accent-blue" />
+          </button>
+
+          {/* Settings Button */}
           <button
             onClick={() => setShowSettings(!showSettings)}
             className={clsx(
