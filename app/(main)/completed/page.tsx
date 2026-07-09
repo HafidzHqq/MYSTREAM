@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
 import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { Loader2, CheckCircle, Filter, ArrowDownWideNarrow } from "lucide-react";
@@ -29,8 +29,10 @@ export default function CompletedPage() {
   
   // Filter state
   const [sortBy, setSortBy] = useState<SortOption>("terbaru");
+  
+  // Infinite scroll observer
+  const observer = useRef<IntersectionObserver | null>(null);
 
-  // Fetch a specific page safely
   const fetchPageSafely = async (pageNum: number) => {
     try {
       const data: any = await animeClientApi.completed(pageNum);
@@ -43,7 +45,7 @@ export default function CompletedPage() {
     }
   };
 
-  const loadMore = async () => {
+  const loadMore = useCallback(async () => {
     if (!hasMore || loading) return;
     setLoading(true);
     
@@ -68,7 +70,6 @@ export default function CompletedPage() {
       }
       
       setItems(prev => {
-        // Prevent duplicates
         const existingSlugs = new Set(prev.map(i => i.slug || i.animeId));
         const filteredNew = allNewItems.filter(i => !existingSlugs.has(i.slug || i.animeId));
         return [...prev, ...filteredNew];
@@ -82,13 +83,25 @@ export default function CompletedPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [hasMore, loading, page, totalPage]);
+
+  const loadMoreRef = useCallback((node: HTMLDivElement) => {
+    if (loading) return;
+    if (observer.current) observer.current.disconnect();
+
+    observer.current = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting && hasMore) {
+        loadMore();
+      }
+    }, { rootMargin: '200px' });
+
+    if (node) observer.current.observe(node);
+  }, [loading, hasMore, loadMore]);
 
   useEffect(() => {
     async function initialLoad() {
       setLoading(true);
       try {
-        // Fetch up to 4 pages concurrently for a massive initial load (usually 4 x 15 = 60 items)
         const pagesToFetch = [1, 2, 3, 4];
         const results = await Promise.all(
           pagesToFetch.map(p => fetchPageSafely(p))
@@ -230,17 +243,9 @@ export default function CompletedPage() {
               ))}
             </div>
             
-            {/* Load More Button */}
-            {hasMore && !loading && items.length > 0 && (
-              <div className="flex justify-center py-4 mb-8">
-                <button
-                  onClick={loadMore}
-                  className="group px-8 py-4 glass-panel border border-accent-blue/30 text-white font-bold rounded-full hover:bg-accent-blue/10 transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(0,229,255,0.15)] cursor-pointer"
-                >
-                  <ArrowDownWideNarrow className="w-5 h-5 group-hover:translate-y-1 transition-transform text-accent-blue" />
-                  Muat Lebih Banyak ({items.length} dimuat sejauh ini)
-                </button>
-              </div>
+            {/* Intersection Observer target for infinite scrolling */}
+            {hasMore && (
+              <div ref={loadMoreRef} className="w-full h-20 bg-transparent" />
             )}
             
             {loading && items.length > 0 && (
