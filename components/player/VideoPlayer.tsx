@@ -100,29 +100,66 @@ export function VideoPlayer({
     const unique = list.filter((s, i, arr) => (s.url || s.id) && arr.findIndex(x => (x.url && x.url === s.url) || (x.id && x.id === s.id)) === i);
     setResolvedServers(unique);
     
-    // Automatically select the first server on load, and resolve its ID if it doesn't have a URL
-    if (unique.length > 0) {
-      const firstServer = unique[0];
-      if (!firstServer.url && firstServer.id) {
-        // Resolve it immediately
-        setLoading(true);
-        fetch(`/api/anime/server/${firstServer.id}?provider=${provider || 'otakudesu'}`)
-          .then(res => {
-            if (!res.ok) throw new Error("Proxy error");
-            return res.json();
-          })
-          .then(data => {
-             const resolvedUrl = data?.data?.url || data?.data?.iframe || data?.data?.streamUrl || "";
-             setCurrentUrl(resolvedUrl);
-          })
-          .catch(() => setIframeError(true))
-          .finally(() => setLoading(false));
-      } else {
-        setCurrentUrl(firstServer.url || "");
+      // Automatically select the first server on load, and resolve its ID if it doesn't have a URL
+      if (unique.length > 0) {
+        const firstServer = unique[0];
+        if (!firstServer.url && firstServer.id) {
+          // Resolve it immediately
+          setLoading(true);
+          fetch(`/api/anime/server/${firstServer.id}?provider=${provider || 'otakudesu'}`)
+            .then(res => {
+              if (!res.ok) throw new Error("Proxy error");
+              return res.json();
+            })
+            .then(data => {
+               const resolvedUrl = data?.data?.url || data?.data?.iframe || data?.data?.streamUrl || "";
+               setCurrentUrl(resolvedUrl);
+            })
+            .catch(() => setIframeError(true))
+            .finally(() => setLoading(false));
+        } else {
+          setCurrentUrl(firstServer.url || "");
+        }
+        setActiveServer(0);
       }
-      setActiveServer(0);
-    }
-  }, [streamUrl, servers, provider]);
+    }, [streamUrl, servers, provider]);
+
+  // Record Watch History
+  useEffect(() => {
+    if (!animeSlug || !episodeTitle) return;
+    
+    const recordHistory = async () => {
+      try {
+        const { createClient } = await import("@/lib/supabase/client");
+        const supabase = createClient();
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session?.user) {
+          await supabase
+            .from('watch_history')
+            .upsert({
+              user_id: session.user.id,
+              slug: animeSlug,
+              title: episodeTitle.split(' Episode')[0] || episodeTitle,
+              episode: episodeTitle,
+              poster: '/placeholder-player.jpg', // can be updated if we pass poster to player
+              watched_at: new Date().toISOString()
+            }, {
+              onConflict: 'user_id, slug'
+            });
+        }
+      } catch (err) {
+        console.error("Failed to record history:", err);
+      }
+    };
+    
+    // Slight delay to ensure it's not a misclick and they are actually watching
+    const timer = setTimeout(() => {
+      recordHistory();
+    }, 5000);
+    
+    return () => clearTimeout(timer);
+  }, [animeSlug, episodeTitle]);
 
   function detectQuality(name: string): string {
     const lower = name.toLowerCase();

@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { Search, Menu, X, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { clsx } from "clsx";
+import { createClient } from "@/lib/supabase/client";
 
 const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/", label: "Beranda" },
@@ -13,7 +14,7 @@ const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/top-rating", label: "Top 70" },
   { href: "/schedule", label: "Jadwal" },
   { href: "/genre", label: "Genre" },
-  { href: "/donghua", label: "Donghua" },
+  { href: "/history", label: "History" },
 ];
 
 export function Navbar() {
@@ -24,6 +25,20 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchRef = useRef<HTMLInputElement>(null);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+    
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -87,6 +102,38 @@ export function Navbar() {
 
             {/* Right Actions */}
             <div className="flex items-center gap-3">
+              {/* Profile/Login Button */}
+              {user ? (
+                <div className="relative group/profile">
+                  <button className="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                    <img 
+                      src={user.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id} 
+                      alt="Profile" 
+                      className="w-7 h-7 rounded-full bg-bg-secondary"
+                    />
+                    <span className="text-xs font-semibold text-text-secondary hidden sm:block">
+                      {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
+                    </span>
+                  </button>
+                  <div className="absolute top-full right-0 mt-2 w-48 bg-bg-secondary border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all duration-200 p-2">
+                    <Link href="/history" className="block px-3 py-2 text-sm text-text-primary hover:bg-white/5 rounded-lg mb-1">Riwayat Nonton</Link>
+                    <button 
+                      onClick={async () => {
+                        const supabase = createClient();
+                        await supabase.auth.signOut();
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Link href="/login" className="px-4 py-1.5 rounded-full text-sm font-semibold bg-accent-blue/10 text-accent-blue hover:bg-accent-blue hover:text-white transition-colors border border-accent-blue/20 hidden sm:block">
+                  Masuk
+                </Link>
+              )}
+
               {/* Search Button */}
               <button
                 onClick={() => setSearchOpen(true)}
