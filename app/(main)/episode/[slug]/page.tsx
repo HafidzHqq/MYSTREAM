@@ -29,7 +29,8 @@ interface EpisodeData {
   nextEpisode?: string | { slug?: string };
   defaultStreamingUrl?: string;
   streamingUrl?: string;
-  servers?: ServerItem[];
+  servers?: ServerItem[] | any;
+  server?: { qualities?: { title?: string; serverList?: ServerItem[] }[] } | ServerItem[];
   qualities?: { title?: string; serverList?: ServerItem[] }[];
   downloads?: unknown;
 }
@@ -38,7 +39,7 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
   const resolvedParams = use(params);
   const resolvedSearchParams = use(searchParams);
   const slug = resolvedParams.slug;
-  const provider = resolvedSearchParams.provider || "otakudesu";
+  const provider = resolvedSearchParams.provider || "samehadaku";
 
   const [episode, setEpisode] = useState<EpisodeData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,12 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
     async function load() {
       setLoading(true);
       try {
-        const res: any = await animeClientApi.episodeDetail(slug);
+        let res: any;
+        if (provider === "akompi") res = await animeClientApi.akompiEpisode(slug);
+        else if (provider === "samehadaku") res = await animeClientApi.samehadakuEpisode(slug);
+        else if (provider === "donghua") res = await animeClientApi.donghuaEpisode(slug);
+        else res = await animeClientApi.episodeDetail(slug);
+        
         setEpisode(res?.data || null);
       } catch {
         setEpisode(null);
@@ -61,16 +67,23 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
+        <div className="bg-white border-[3px] border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+          <Loader2 className="w-8 h-8 text-black animate-spin" />
+          <span className="text-xl font-black uppercase text-black">Memuat...</span>
+        </div>
       </div>
     );
   }
 
   if (!episode) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-xl font-bold text-text-primary">Episode Tidak Ditemukan</h1>
-        <Link href="/" className="mt-4 px-4 py-2 bg-accent-purple text-white rounded-lg">Kembali ke Beranda</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-bg-primary">
+        <div className="bg-white border-[3px] border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center max-w-md">
+          <h1 className="text-2xl font-black text-black uppercase mb-4">Episode Tidak Ditemukan</h1>
+          <Link href="/" className="inline-block w-full px-6 py-3 bg-accent-yellow border-[3px] border-black text-black font-black uppercase brutal-hover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            Kembali ke Beranda
+          </Link>
+        </div>
       </div>
     );
   }
@@ -79,24 +92,30 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
 
   if (Array.isArray(episode.servers)) {
     episode.servers.forEach(s => resolvedServers.push(s));
+  } else if (episode.server && Array.isArray(episode.server)) {
+    episode.server.forEach((s: any) => resolvedServers.push(s));
   }
 
-  if (Array.isArray(episode.qualities)) {
-    episode.qualities.forEach(q => {
-      const qTitle = q.title || "";
-      if (Array.isArray(q.serverList)) {
-        q.serverList.forEach(s => {
-          resolvedServers.push({
-            title: `${s.title || s.name} (${qTitle})`,
-            serverId: s.serverId,
-            href: s.href,
-            url: s.url,
-            iframe: s.iframe,
-          });
+  const allQualities = Array.isArray(episode.qualities) ? episode.qualities : (
+    episode.server && !Array.isArray(episode.server) && Array.isArray(episode.server.qualities) 
+      ? episode.server.qualities 
+      : []
+  );
+
+  allQualities.forEach(q => {
+    const qTitle = q.title || "";
+    if (Array.isArray(q.serverList)) {
+      q.serverList.forEach(s => {
+        resolvedServers.push({
+          title: `${s.title || s.name} (${qTitle})`,
+          serverId: s.serverId,
+          href: s.href,
+          url: s.url,
+          iframe: s.iframe,
         });
-      }
-    });
-  }
+      });
+    }
+  });
 
   const defaultUrl = episode.defaultStreamingUrl || episode.streamingUrl || resolvedServers[0]?.url || resolvedServers[0]?.iframe || "";
 
@@ -109,65 +128,69 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
     : episode.nextEpisode?.slug;
 
   return (
-    <div className="min-h-screen bg-bg-primary">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="min-h-screen bg-bg-primary mt-16 md:mt-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-text-muted mb-4">
-          <Link href="/" className="hover:text-text-primary transition-colors flex items-center gap-1">
-            <Home className="w-3 h-3" /> Beranda
+        <div className="flex flex-wrap items-center gap-2 text-sm text-black font-bold mb-6 bg-white border-2 border-black inline-flex px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+          <Link href="/" className="hover:underline flex items-center gap-1 uppercase">
+            <Home className="w-4 h-4" /> Beranda
           </Link>
-          <span>/</span>
+          <span className="font-black">/</span>
           {episode.animeSlug && (
             <>
-              <Link href={`/anime/${episode.animeSlug}`} className="hover:text-text-primary transition-colors">
+              <Link href={`/anime/${episode.animeSlug}`} className="hover:underline uppercase">
                 {episode.animeTitle || "Detail Anime"}
               </Link>
-              <span>/</span>
+              <span className="font-black">/</span>
             </>
           )}
-          <span className="text-text-primary truncate">{episode.title}</span>
+          <span className="text-black uppercase truncate max-w-[200px] sm:max-w-xs">{episode.title}</span>
         </div>
 
         {/* Video Player */}
-        <VideoPlayer
-          streamUrl={defaultUrl}
-          servers={resolvedServers}
-          episodeSlug={slug}
-          animeSlug={episode.animeSlug}
-          episodeTitle={episode.title}
-          provider={provider}
-        />
+        <div className="mb-6 brutal-box bg-white border-[3px] border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <VideoPlayer
+            streamUrl={defaultUrl}
+            servers={resolvedServers}
+            episodeSlug={slug}
+            animeSlug={episode.animeSlug}
+            episodeTitle={episode.title}
+            provider={provider}
+          />
+        </div>
 
         {/* Navigation & Controls */}
-        <div className="flex items-center justify-between mt-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-8 gap-4">
           {prevSlug ? (
             <Link
               href={`/episode/${prevSlug}?provider=${provider}`}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl glass border border-white/10 text-text-secondary hover:text-text-primary hover:border-accent-purple/30 transition-all group"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-white border-[3px] border-black text-black font-black uppercase brutal-hover hover:bg-gray-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all group"
             >
-              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform stroke-[3]" />
               Eps Sebelumnya
             </Link>
           ) : (
-            <div />
+            <div className="hidden sm:block" />
           )}
 
           {nextSlug ? (
             <Link
               href={`/episode/${nextSlug}?provider=${provider}`}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-primary text-white font-bold hover:shadow-glow transition-all group"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-accent-yellow border-[3px] border-black text-black font-black uppercase brutal-hover hover:bg-accent-pink shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all group"
             >
               Eps Selanjutnya
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform stroke-[3]" />
             </Link>
           ) : (
-            <div />
+            <div className="hidden sm:block" />
           )}
         </div>
 
         {/* Komentar Section */}
-        <CommentSection episodeSlug={slug} />
+        <div className="mt-12 bg-white border-[3px] border-black p-6 md:p-8 brutal-box shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <CommentSection episodeSlug={slug} />
+        </div>
       </div>
     </div>
   );

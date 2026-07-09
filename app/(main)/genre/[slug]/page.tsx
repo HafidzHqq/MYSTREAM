@@ -53,24 +53,26 @@ export default function GenreDetailPage({ params, searchParams }: PageProps) {
   const genreTitle = slug.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
 
   return (
-    <div className="min-h-screen py-10">
+    <div className="min-h-screen py-10 bg-bg-primary mt-16 md:mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-display font-black text-text-primary mb-2">
+        <div className="mb-10 brutal-box bg-accent-blue p-6 md:p-8">
+          <h1 className="text-3xl md:text-5xl font-black text-black mb-2 uppercase tracking-tighter">
             📂 Genre: {genreTitle}
           </h1>
-          <p className="text-text-muted text-sm">Menampilkan semua anime dalam genre {genreTitle}</p>
+          <p className="text-black font-bold text-lg border-l-4 border-black pl-3 bg-white/50 inline-block pr-4 py-1">
+            Menampilkan semua anime dalam genre {genreTitle}
+          </p>
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
             {Array.from({ length: 12 }).map((_, i) => (
               <AnimeCardSkeleton key={i} />
             ))}
           </div>
         ) : items.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mb-10">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6 mb-10">
               {items.map((anime) => (
                 <AnimeCard
                   key={anime.slug || anime.animeId}
@@ -80,16 +82,16 @@ export default function GenreDetailPage({ params, searchParams }: PageProps) {
                   type={anime.type}
                   episode={anime.episode || anime.latestEp}
                   score={anime.score}
-                  provider="otakudesu"
+                  provider="samehadaku"
                 />
               ))}
             </div>
             <PaginationControls currentPage={pageNum} totalPage={totalPage} baseUrl={`/genre/${slug}`} />
           </>
         ) : (
-          <div className="text-center py-20 text-text-muted">
-            <p className="text-lg">📂 Genre anime gagal dimuat.</p>
-            <p className="text-sm mt-1">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
+          <div className="text-center py-20 text-black brutal-box bg-white">
+            <p className="text-2xl font-black uppercase mb-2">📂 Genre anime gagal dimuat.</p>
+            <p className="text-lg font-bold">Gunakan koneksi internet lain atau muat ulang halaman beberapa saat lagi.</p>
           </div>
         )}
       </div>

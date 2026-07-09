@@ -16,17 +16,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: {
-    default: "AniStream - Nonton Anime Sub Indo Gratis",
-    template: "%s | AniStream",
-  },
+  title: "QQ.stream - Nonton Anime Sub Indo Gratis",
   description:
-    "Platform streaming anime Indonesia terlengkap. Nonton anime sub indo, ongoing, completed, donghua, dan jadwal rilis terbaru secara gratis.",
+    "Tempat nonton streaming anime sub indo terlengkap, tercepat, dan tanpa iklan mengganggu. Update setiap hari.",
+  themeColor: "#8b5cf6",
   keywords: [
+    "anime indo",
     "nonton anime",
     "anime sub indo",
     "streaming anime",
-    "anime indonesia",
     "otakudesu",
     "samehadaku",
     "donghua",
@@ -36,13 +34,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "AniStream",
-    title: "AniStream - Nonton Anime Sub Indo Gratis",
+    siteName: "QQ.stream",
+    title: "QQ.stream - Nonton Anime Sub Indo Gratis",
     description: "Platform streaming anime Indonesia terlengkap.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "AniStream",
+    title: "QQ.stream",
     description: "Platform streaming anime Indonesia terlengkap.",
   },
   robots: {

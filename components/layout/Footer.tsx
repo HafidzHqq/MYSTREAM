@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Tv, Globe, MessageCircle, Play } from "lucide-react";
+import Image from "next/image";
 
 const footerLinks = {
   Navigasi: [
@@ -13,7 +14,6 @@ const footerLinks = {
     { label: "Romance", href: "/genre/romance" },
     { label: "Fantasy", href: "/genre/fantasy" },
     { label: "Donghua", href: "/donghua" },
-    { label: "18+ (Nekopoi)", href: "/nekopoi" },
   ],
   Lainnya: [
     { label: "Genre", href: "/genre" },
@@ -30,10 +30,9 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                <Tv className="w-4 h-4 text-white" />
+              <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden relative bg-transparent">
+                <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
               </div>
-              <span className="font-display font-bold text-xl gradient-text">AniStream</span>
             </Link>
             <p className="text-text-muted text-sm leading-relaxed mb-4">
               Platform streaming anime Indonesia terlengkap. Nonton anime sub indo gratis.
@@ -73,7 +72,7 @@ export function Footer() {
 
         <div className="mt-10 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-text-muted text-xs">
-            © {new Date().getFullYear()} AniStream. Data dari{" "}
+            © {new Date().getFullYear()} QQ.stream. Data dari{" "}
             <a href="https://www.sankavollerei.web.id/anime/" target="_blank" rel="noopener" className="text-accent-purple hover:underline">
               Sanka Vollerei API
             </a>

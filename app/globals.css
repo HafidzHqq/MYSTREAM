@@ -2,60 +2,85 @@
 
 @layer base {
   :root {
-    --bg-primary: #0a0a0c;
-    --bg-secondary: #121216;
-    --bg-card: #181820;
-    --bg-overlay: rgba(24, 24, 32, 0.7);
-    --text-primary: #f3f4f6;
-    --text-secondary: #9ca3af;
-    --text-muted: #6b7280;
-    --accent-purple: #8b5cf6;
-    --accent-blue: #3b82f6;
-    --accent-pink: #ec4899;
+    --bg-primary: #f4f4f0;
+    --bg-secondary: #ffffff;
+    --bg-card: #ffffff;
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    --text-primary: #000000;
+    --text-secondary: #222222;
+    --text-muted: #555555;
+    --accent-purple: #c084fc;
+    --accent-blue: #60a5fa;
+    --accent-pink: #ff85b3;
+    --accent-yellow: #ffdc58;
   }
 }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
+  /* Add a very subtle dotted background for that classic brutalist paper feel */
+  background-image: radial-gradient(#000000 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
-/* Glassmorphism Utilities */
+/* Base Brutalist Box */
+.brutal-box {
+  background-color: var(--bg-card);
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0px 0px #000;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Neobrutalism Hover Effect */
+.brutal-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px #000;
+}
+
+.brutal-hover:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px 0px #000;
+}
+
+/* Glassmorphism Utilities (Overridden to Brutalism) */
 .glass {
-  background: rgba(18, 18, 22, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: #ffffff;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0px 0px #000;
 }
 
-/* Premium Card Hover Glow */
+/* Premium Card Hover Glow (Overridden to Brutal Hover) */
 .card-glow {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease-out;
+  border: 3px solid #000;
+  box-shadow: 4px 4px 0px 0px #000;
 }
 .card-glow:hover {
-  box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.3);
-  border-color: rgba(139, 92, 246, 0.3);
+  transform: translate(-4px, -4px);
+  box-shadow: 8px 8px 0px 0px #000;
 }
 
-/* Gradient Text */
+/* Gradient Text (Overridden to solid bold text with brutal shadow) */
 .gradient-text {
-  background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #000;
+  text-shadow: 3px 3px 0px var(--accent-pink);
 }
 
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  background: var(--accent-yellow);
+  border: 3px solid #000;
+  color: #000 !important;
 }
 
 .shadow-glow {
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  box-shadow: 4px 4px 0px 0px #000;
 }
 
 .shadow-glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 4px 4px 0px 0px #000;
 }
 
 /* Custom Video Aspect Container */
@@ -64,7 +89,10 @@ body {
   padding-bottom: 56.25%; /* 16:9 */
   height: 0;
   overflow: hidden;
-  border-radius: 1rem;
+  border-radius: 0.5rem;
+  border: 3px solid #000;
+  box-shadow: 6px 6px 0px 0px #000;
+  background: #000;
 }
 .video-container iframe {
   position: absolute;
@@ -75,13 +103,14 @@ body {
   border: 0;
 }
 
-/* Custom Skeleton Pulse */
-@keyframes pulse-soft {
+/* Custom Skeleton Pulse (Harder pulse for brutalism) */
+@keyframes pulse-hard {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.5; }
 }
 
 .skeleton {
-  background: #1f1f29;
-  animation: pulse-soft 2s infinite ease-in-out;
+  background: #e5e5e5;
+  border: 3px solid #000;
+  animation: pulse-hard 1s infinite step-end;
 }

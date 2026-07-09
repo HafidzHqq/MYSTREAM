@@ -2,7 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, Tv, Loader2, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginClient() {
@@ -41,11 +42,10 @@ export default function LoginClient() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Tv className="w-5 h-5 text-white" />
+          <Link href="/" className="inline-flex items-center">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden relative bg-transparent mx-auto">
+              <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
             </div>
-            <span className="font-display font-bold text-2xl gradient-text">AniStream</span>
           </Link>
           <p className="text-text-muted text-sm mt-2">Masuk untuk akses fitur lengkap</p>
         </div>

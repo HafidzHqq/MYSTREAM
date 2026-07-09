@@ -5,10 +5,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const searchParams = request.nextUrl.searchParams;
+  const provider = searchParams.get('provider') || 'otakudesu';
   const BASE = process.env.ANIME_API_BASE || 'https://www.sankavollerei.web.id/anime';
   
   try {
-    const res = await fetch(`${BASE}/server/${id}`, {
+    const endpoint = provider === 'otakudesu' 
+      ? `${BASE}/server/${id}` 
+      : `${BASE}/${provider}/server/${id}`;
+
+    const res = await fetch(endpoint, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
         'Referer': 'https://otakudesu.cloud/',

@@ -2,17 +2,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Search, Menu, X, Tv } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
+import Image from "next/image";
 import { clsx } from "clsx";
 
-const navLinks = [
+const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/", label: "Beranda" },
   { href: "/ongoing", label: "Ongoing" },
   { href: "/completed", label: "Completed" },
   { href: "/schedule", label: "Jadwal" },
   { href: "/genre", label: "Genre" },
   { href: "/donghua", label: "Donghua" },
-  { href: "/nekopoi", label: "18+", badge: true },
 ];
 
 export function Navbar() {
@@ -47,63 +47,56 @@ export function Navbar() {
     <>
       <nav
         className={clsx(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled
-            ? "glass border-b border-white/5"
-            : "bg-gradient-to-b from-black/80 to-transparent"
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b-[3px] border-black bg-bg-primary"
         )}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center shadow-glow group-hover:shadow-glow-blue transition-all duration-300">
-                <Tv className="w-4 h-4 text-white" />
+            <Link href="/" className="flex items-center group">
+              <div className="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center brutal-box brutal-hover relative overflow-hidden bg-white">
+                <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
               </div>
-              <span className="font-display font-bold text-xl gradient-text">AniStream</span>
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="hidden lg:flex items-center gap-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   className={clsx(
-                    "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative",
-                    link.badge && "text-pink-400 hover:text-pink-300",
+                    "px-4 py-2 text-base font-black transition-all border-[3px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none relative",
                     pathname === link.href
-                      ? link.badge
-                        ? "bg-pink-500/20 text-pink-400"
-                        : "bg-accent-purple/20 text-accent-purple"
-                      : !link.badge && "text-text-secondary hover:text-text-primary hover:bg-white/5"
+                      ? "bg-accent-yellow border-black text-black"
+                      : "bg-white border-black text-black hover:bg-accent-pink"
                   )}
                 >
                   {link.label}
                   {link.badge && (
-                    <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+                    <span className="absolute -top-2 -right-2 w-4 h-4 border-2 border-black rounded-full bg-accent-blue animate-pulse" />
                   )}
                 </Link>
               ))}
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {/* Search Button */}
               <button
                 onClick={() => setSearchOpen(true)}
-                className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all"
+                className="p-2 md:p-3 bg-white border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-yellow hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
                 aria-label="Cari anime"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-5 h-5 text-black font-bold" strokeWidth={3} />
               </button>
 
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all"
+                className="lg:hidden p-2 bg-accent-purple border-[3px] border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-pink active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
               >
-                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileOpen ? <X className="w-5 h-5 text-black" strokeWidth={3} /> : <Menu className="w-5 h-5 text-black" strokeWidth={3} />}
               </button>
             </div>
           </div>
@@ -111,26 +104,23 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         {mobileOpen && (
-          <div className="lg:hidden glass border-t border-white/5 animate-slide-up">
-            <div className="px-4 py-3 space-y-1">
+          <div className="lg:hidden bg-bg-secondary border-t-[3px] border-black border-b-[3px]">
+            <div className="px-4 py-6 flex flex-col gap-3 bg-accent-cyan/20">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
                   className={clsx(
-                    "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
-                    link.badge && "text-pink-400",
+                    "block w-full text-center px-4 py-3 text-lg font-black transition-all border-[3px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none relative",
                     pathname === link.href
-                      ? link.badge
-                        ? "bg-pink-500/20 text-pink-400"
-                        : "bg-accent-purple/20 text-accent-purple"
-                      : !link.badge && "text-text-secondary hover:text-text-primary hover:bg-white/5"
+                      ? "bg-accent-yellow border-black text-black"
+                      : "bg-white border-black text-black"
                   )}
                 >
                   {link.label}
                   {link.badge && (
-                    <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+                    <span className="w-3 h-3 ml-2 inline-block border-2 border-black rounded-full bg-accent-blue" />
                   )}
                 </Link>
               ))}
@@ -139,34 +129,37 @@ export function Navbar() {
         )}
       </nav>
 
-      {/* Search Overlay */}
+      {/* Search Overlay - Brutalist Style */}
       {searchOpen && (
         <div
-          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-20 px-4 animate-fade-in"
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-start justify-center pt-24 px-4"
           onClick={(e) => e.target === e.currentTarget && setSearchOpen(false)}
         >
-          <form onSubmit={handleSearch} className="w-full max-w-2xl animate-slide-up">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted" />
+          <form onSubmit={handleSearch} className="w-full max-w-2xl bg-white border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <h2 className="text-2xl font-black mb-4 uppercase tracking-wider text-black">Cari Anime</h2>
+            <div className="relative flex gap-3">
               <input
                 ref={searchRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Cari anime, genre, studio..."
-                className="w-full pl-12 pr-16 py-4 bg-bg-overlay border border-white/10 rounded-2xl text-text-primary placeholder:text-text-muted text-lg focus:outline-none focus:border-accent-purple/50 transition-all"
+                placeholder="Ketik judul anime..."
+                className="w-full px-4 py-4 bg-white border-[3px] border-black text-black placeholder:text-gray-500 text-lg font-bold focus:outline-none focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
               />
               <button
-                type="button"
-                onClick={() => setSearchOpen(false)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-text-primary transition-colors"
+                type="submit"
+                className="px-6 bg-accent-yellow border-[3px] border-black font-black text-black hover:bg-accent-pink transition-colors brutal-hover flex items-center justify-center"
               >
-                <X className="w-5 h-5" />
+                CARI
               </button>
             </div>
-            <p className="text-center text-text-muted text-sm mt-3">
-              Tekan <kbd className="px-2 py-0.5 rounded bg-white/10 text-xs">Enter</kbd> untuk mencari
-            </p>
+            <button
+              type="button"
+              onClick={() => setSearchOpen(false)}
+              className="mt-4 text-sm font-bold underline underline-offset-4 decoration-2 text-black hover:text-accent-pink"
+            >
+              Tutup / Batal
+            </button>
           </form>
         </div>
       )}

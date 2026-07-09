@@ -42,24 +42,24 @@ export async function fetchAnime<T = unknown>(
 // ─── Endpoint Helpers ───────────────────────────────────────────────────────
 
 export const animeApi = {
-  // Home / Ongoing / Completed (Otakudesu)
-  home: () => fetchAnime('/home'),
-  ongoing: (page = 1) => fetchAnime(`/ongoing-anime?page=${page}`),
-  completed: (page = 1) => fetchAnime(`/complete-anime?page=${page}`),
+  // Home / Ongoing / Completed (Default: Samehadaku)
+  home: () => fetchAnime('/samehadaku/home'),
+  ongoing: (page = 1) => fetchAnime(`/samehadaku/ongoing?page=${page}`),
+  completed: (page = 1) => fetchAnime(`/samehadaku/completed?page=${page}`),
 
   // Search
-  search: (q: string) => fetchAnime(`/search?q=${encodeURIComponent(q)}`),
+  search: (q: string) => fetchAnime(`/samehadaku/search?q=${encodeURIComponent(q)}`),
 
   // Detail
-  animeDetail: (slug: string) => fetchAnime(`/anime/${slug}`),
-  episodeDetail: (slug: string) => fetchAnime(`/episode/${slug}`),
+  animeDetail: (slug: string) => fetchAnime(`/samehadaku/anime/${slug}`),
+  episodeDetail: (slug: string) => fetchAnime(`/samehadaku/episode/${slug}`),
 
   // Genre
-  genreList: () => fetchAnime('/genres'),
-  genreAnime: (slug: string, page = 1) => fetchAnime(`/genres/${slug}?page=${page}`),
+  genreList: () => fetchAnime('/samehadaku/genres'),
+  genreAnime: (slug: string, page = 1) => fetchAnime(`/samehadaku/genres/${slug}?page=${page}`),
 
   // Schedule
-  schedule: () => fetchAnime('/schedule'),
+  schedule: () => fetchAnime('/samehadaku/schedule'),
 
   // Animekompi (for rich thumbnails)
   akompiHome: () => fetchAnime('/akompi/home'),
@@ -70,7 +70,7 @@ export const animeApi = {
   // Samehadaku
   samehadakuHome: () => fetchAnime('/samehadaku/home'),
   samehadakuSearch: (q: string) => fetchAnime(`/samehadaku/search?q=${encodeURIComponent(q)}`),
-  samehadakuDetail: (slug: string) => fetchAnime(`/samehadaku/detail/${slug}`),
+  samehadakuDetail: (slug: string) => fetchAnime(`/samehadaku/anime/${slug}`),
   samehadakuEpisode: (slug: string) => fetchAnime(`/samehadaku/episode/${slug}`),
 
   // Donghua

@@ -2,7 +2,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Tv, Loader2, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 export default function RegisterClient() {
@@ -42,7 +43,7 @@ export default function RegisterClient() {
           <div className="text-5xl mb-4">🎉</div>
           <h2 className="text-2xl font-display font-bold text-text-primary mb-2">Registrasi Berhasil!</h2>
           <p className="text-text-muted text-sm mb-6">
-            Cek email kamu untuk verifikasi akun, lalu login untuk menikmati AniStream.
+            Cek email kamu untuk verifikasi akun, lalu login untuk menikmati QQ.stream.
           </p>
           <Link href="/login"
             className="inline-flex items-center justify-center w-full py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all">
@@ -62,11 +63,10 @@ export default function RegisterClient() {
 
       <div className="relative w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
-              <Tv className="w-5 h-5 text-white" />
+          <Link href="/" className="inline-flex items-center">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden relative bg-transparent mx-auto">
+              <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
             </div>
-            <span className="font-display font-bold text-2xl gradient-text">AniStream</span>
           </Link>
           <p className="text-text-muted text-sm mt-2">Buat akun gratis dan mulai nonton</p>
         </div>

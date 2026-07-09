@@ -38,7 +38,7 @@ export default function AnimeDetailPage({ params, searchParams }: PageProps) {
   const resolvedParams = use(params);
   const resolvedSearchParams = use(searchParams);
   const slug = resolvedParams.slug;
-  const provider = resolvedSearchParams.provider || "otakudesu";
+  const provider = resolvedSearchParams.provider || "samehadaku";
 
   const [anime, setAnime] = useState<AnimeDetailData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +47,12 @@ export default function AnimeDetailPage({ params, searchParams }: PageProps) {
     async function load() {
       setLoading(true);
       try {
-        const res: any = await animeClientApi.animeDetail(slug);
+        let res: any;
+        if (provider === "akompi") res = await animeClientApi.akompiDetail(slug);
+        else if (provider === "samehadaku") res = await animeClientApi.samehadakuDetail(slug);
+        else if (provider === "donghua") res = await animeClientApi.donghuaDetail(slug);
+        else res = await animeClientApi.animeDetail(slug);
+        
         setAnime(res?.data || null);
       } catch {
         setAnime(null);
@@ -61,16 +66,23 @@ export default function AnimeDetailPage({ params, searchParams }: PageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <Loader2 className="w-10 h-10 text-accent-purple animate-spin" />
+        <div className="bg-white border-[3px] border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
+          <Loader2 className="w-8 h-8 text-black animate-spin" />
+          <span className="text-xl font-black uppercase text-black">Memuat...</span>
+        </div>
       </div>
     );
   }
 
   if (!anime) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4">
-        <h1 className="text-xl font-bold text-text-primary">Anime Tidak Ditemukan</h1>
-        <Link href="/" className="mt-4 px-4 py-2 bg-accent-purple text-white rounded-lg">Kembali ke Beranda</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-bg-primary">
+        <div className="bg-white border-[3px] border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center max-w-md">
+          <h1 className="text-2xl font-black text-black uppercase mb-4">Anime Tidak Ditemukan</h1>
+          <Link href="/" className="inline-block w-full px-6 py-3 bg-accent-yellow border-[3px] border-black text-black font-black uppercase brutal-hover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            Kembali ke Beranda
+          </Link>
+        </div>
       </div>
     );
   }
@@ -79,112 +91,109 @@ export default function AnimeDetailPage({ params, searchParams }: PageProps) {
     ? anime.synopsis 
     : anime.synopsis?.paragraphs?.join("\n\n") || "";
 
-  return (
-    <div className="min-h-screen pb-12">
-      {/* Background Banner Blur */}
-      <div className="absolute top-0 left-0 right-0 h-[40vh] overflow-hidden opacity-10 pointer-events-none">
-        {anime.poster && (
-          <Image src={anime.poster} alt={anime.title || ""} fill className="object-cover filter blur-3xl scale-125" unoptimized />
-        )}
-      </div>
+  const displayScore = typeof anime.score === "object" && anime.score !== null 
+    ? (anime.score as any).value || "N/A" 
+    : String(anime.score || "N/A");
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 relative">
+  return (
+    <div className="min-h-screen pb-12 bg-bg-primary mt-16 md:mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Poster Column */}
           <div className="md:col-span-1">
-            <div className="relative aspect-[2/3] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-bg-card">
+            <div className="relative aspect-[2/3] w-full rounded-none overflow-hidden border-[3px] border-black bg-white brutal-box">
               {anime.poster && (
                 <Image src={anime.poster} alt={anime.title || ""} fill className="object-cover" unoptimized />
               )}
             </div>
-            <div className="mt-4">
+            <div className="mt-6">
               <FavoriteButton animeSlug={slug} animeTitle={anime.title || ""} animeThumbnail={anime.poster} />
             </div>
           </div>
 
           {/* Info Details Column */}
-          <div className="md:col-span-3 space-y-6">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-display font-black text-text-primary tracking-tight mb-2">
-                {anime.title}
+          <div className="md:col-span-3 space-y-8">
+            <div className="bg-white border-[3px] border-black p-6 md:p-8 brutal-box shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h1 className="text-3xl md:text-5xl font-black text-black tracking-tight mb-4 uppercase leading-none">
+                {anime.title || "Detail Anime"}
               </h1>
-              {anime.japanese && <p className="text-text-muted text-sm italic font-medium">{anime.japanese}</p>}
+              {anime.japanese && <p className="text-black text-base font-bold bg-accent-cyan inline-block px-3 py-1 border-2 border-black">{anime.japanese}</p>}
             </div>
 
             {/* Quick Specs Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 rounded-2xl bg-bg-card border border-white/5">
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-accent-yellow border-[3px] border-black brutal-box shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="flex items-center gap-3">
+                <div className="bg-white border-2 border-black p-2"><Star className="w-6 h-6 text-black fill-black" /></div>
                 <div>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Rating</p>
-                  <p className="text-sm font-semibold text-text-primary">{anime.score || "N/A"}</p>
+                  <p className="text-[10px] text-black font-black uppercase">Rating</p>
+                  <p className="text-lg font-black text-black leading-none">{displayScore}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Tv className="w-4 h-4 text-accent-purple" />
+              <div className="flex items-center gap-3">
+                <div className="bg-white border-2 border-black p-2"><Tv className="w-6 h-6 text-black" /></div>
                 <div>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Tipe</p>
-                  <p className="text-sm font-semibold text-text-primary">{anime.type || "N/A"}</p>
+                  <p className="text-[10px] text-black font-black uppercase">Tipe</p>
+                  <p className="text-lg font-black text-black leading-none">{anime.type || "N/A"}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Film className="w-4 h-4 text-accent-blue" />
+              <div className="flex items-center gap-3">
+                <div className="bg-white border-2 border-black p-2"><Film className="w-6 h-6 text-black" /></div>
                 <div>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Status</p>
-                  <p className="text-sm font-semibold text-text-primary">{anime.status || "N/A"}</p>
+                  <p className="text-[10px] text-black font-black uppercase">Status</p>
+                  <p className="text-lg font-black text-black leading-none">{anime.status || "N/A"}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-pink-400" />
+              <div className="flex items-center gap-3">
+                <div className="bg-white border-2 border-black p-2"><Calendar className="w-6 h-6 text-black" /></div>
                 <div>
-                  <p className="text-[10px] text-text-muted font-bold uppercase">Rilis</p>
-                  <p className="text-sm font-semibold text-text-primary">{anime.aired || "N/A"}</p>
+                  <p className="text-[10px] text-black font-black uppercase">Rilis</p>
+                  <p className="text-lg font-black text-black leading-none">{anime.aired || "N/A"}</p>
                 </div>
               </div>
             </div>
 
             {/* Synopsis */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-2 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-accent-purple" /> Sinopsis
+            <div className="bg-white border-[3px] border-black p-6 md:p-8 brutal-box shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-2xl font-black text-black mb-4 flex items-center gap-3 uppercase">
+                <BookOpen className="w-8 h-8 text-black" /> Sinopsis
               </h2>
-              <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-line">{synopsisText}</p>
+              <p className="text-black text-base font-bold leading-relaxed whitespace-pre-line border-l-4 border-black pl-4">{synopsisText}</p>
             </div>
 
             {/* Episode List */}
-            <div>
-              <h2 className="text-lg font-bold text-text-primary mb-3 flex items-center gap-2">
-                <Play className="w-5 h-5 text-accent-purple" /> Daftar Episode
+            <div className="bg-accent-blue border-[3px] border-black p-6 md:p-8 brutal-box shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <h2 className="text-2xl font-black text-black mb-6 flex items-center gap-3 uppercase">
+                <Play className="w-8 h-8 text-black fill-black" /> Daftar Episode
               </h2>
               {anime.episodeList && anime.episodeList.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {anime.episodeList.map((ep, i) => {
                     const epId = ep.episodeId || ep.slug || `episode-${i+1}`;
                     return (
                       <Link
                         key={epId}
                         href={`/episode/${epId}?provider=${provider}`}
-                        className="flex items-center justify-between p-3.5 rounded-xl bg-bg-card border border-white/5 hover:border-accent-purple/30 hover:bg-bg-overlay transition-all group"
+                        className="flex items-center justify-between p-4 bg-white border-[3px] border-black brutal-hover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-pink group"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-text-primary group-hover:text-accent-purple transition-colors truncate">
+                          <p className="text-base font-black text-black group-hover:underline underline-offset-2 truncate uppercase">
                             {ep.title || `Episode ${i+1}`}
                           </p>
                           {ep.date && (
-                            <p className="text-[10px] text-text-muted flex items-center gap-1 mt-1 font-medium">
-                              <Clock className="w-3 h-3" /> {ep.date}
+                            <p className="text-xs text-black flex items-center gap-1 mt-2 font-bold bg-gray-100 border-2 border-black inline-block px-1.5 py-0.5">
+                              <Clock className="w-3.5 h-3.5 inline" strokeWidth={3} /> {ep.date}
                             </p>
                           )}
                         </div>
-                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0 group-hover:bg-accent-purple/20 transition-all">
-                          <Play className="w-3.5 h-3.5 text-text-secondary group-hover:text-accent-purple transition-colors fill-current" />
+                        <div className="w-10 h-10 bg-accent-yellow border-[3px] border-black flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+                          <Play className="w-5 h-5 text-black fill-black ml-1" />
                         </div>
                       </Link>
                     );
                   })}
                 </div>
               ) : (
-                <div className="p-4 text-center rounded-xl bg-white/5 text-text-muted italic text-sm">
+                <div className="p-6 text-center border-[3px] border-black bg-white text-black font-black uppercase text-lg brutal-box">
                   Belum ada episode tersedia.
                 </div>
               )}
