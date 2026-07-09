@@ -92,7 +92,7 @@ export default function TopRatingPage() {
                 {index + 1}
               </div>
               <AnimeCard
-                slug={anime.slug || ""}
+                slug={anime.slug || anime.animeId || ""}
                 title={anime.title || ""}
                 thumbnail={anime.poster || anime.thumbnail || ""}
                 type={anime.type}
