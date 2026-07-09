@@ -26,6 +26,8 @@ export default function CompletedPage() {
   const [totalPage, setTotalPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [backgroundLoading, setBackgroundLoading] = useState(false);
+  const [targetMaxItems] = useState(500);
   
   // Filter state
   const [sortBy, setSortBy] = useState<SortOption>("terbaru");
@@ -45,29 +47,31 @@ export default function CompletedPage() {
     }
   };
 
+  const fetchBatch = useCallback(async (startPage: number, batchSize: number) => {
+    const pagesToFetch = Array.from({ length: batchSize }, (_, i) => startPage + i);
+    const results = await Promise.all(pagesToFetch.map(p => fetchPageSafely(p)));
+    
+    let allNewItems: any[] = [];
+    let latestTotalPage = 1;
+    let highestPageFetched = startPage;
+
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      if (result.items.length > 0) {
+        allNewItems = [...allNewItems, ...result.items];
+        highestPageFetched = pagesToFetch[i];
+        latestTotalPage = result.tPage > latestTotalPage ? result.tPage : latestTotalPage;
+      }
+    }
+    return { allNewItems, highestPageFetched, latestTotalPage };
+  }, []);
+
   const loadMore = useCallback(async () => {
-    if (!hasMore || loading) return;
+    if (!hasMore || loading || backgroundLoading) return;
     setLoading(true);
     
-    // Fetch 3 pages at a time to load faster
-    const pagesToFetch = [page + 1, page + 2, page + 3];
-    let allNewItems: any[] = [];
-    let latestTotalPage = totalPage;
-    let highestPageFetched = page;
-
     try {
-      const results = await Promise.all(
-        pagesToFetch.map(p => fetchPageSafely(p))
-      );
-      
-      for (let i = 0; i < results.length; i++) {
-        const result = results[i];
-        if (result.items.length > 0) {
-          allNewItems = [...allNewItems, ...result.items];
-          highestPageFetched = pagesToFetch[i];
-          latestTotalPage = result.tPage;
-        }
-      }
+      const { allNewItems, highestPageFetched, latestTotalPage } = await fetchBatch(page + 1, 3);
       
       setItems(prev => {
         const existingSlugs = new Set(prev.map(i => i.slug || i.animeId));
@@ -83,10 +87,10 @@ export default function CompletedPage() {
     } finally {
       setLoading(false);
     }
-  }, [hasMore, loading, page, totalPage]);
+  }, [hasMore, loading, backgroundLoading, page, totalPage, fetchBatch]);
 
   const loadMoreRef = useCallback((node: HTMLDivElement) => {
-    if (loading) return;
+    if (loading || backgroundLoading) return;
     if (observer.current) observer.current.disconnect();
 
     observer.current = new IntersectionObserver(entries => {
@@ -96,45 +100,67 @@ export default function CompletedPage() {
     }, { rootMargin: '200px' });
 
     if (node) observer.current.observe(node);
-  }, [loading, hasMore, loadMore]);
+  }, [loading, backgroundLoading, hasMore, loadMore]);
 
+  // Initial load & Background mass-loader up to 500
   useEffect(() => {
-    async function initialLoad() {
+    let isMounted = true;
+    async function massLoad() {
       setLoading(true);
+      setBackgroundLoading(true);
       try {
-        const pagesToFetch = [1, 2, 3, 4];
-        const results = await Promise.all(
-          pagesToFetch.map(p => fetchPageSafely(p))
-        );
+        // Fast initial load of first 2 pages so UI isn't blocked
+        let currentItems: AnimeItem[] = [];
+        const initialRes = await fetchBatch(1, 2);
+        if (!isMounted) return;
         
-        let allNewItems: any[] = [];
-        let latestTotalPage = 1;
-        let highestPageFetched = 1;
-
-        for (let i = 0; i < results.length; i++) {
-          const result = results[i];
-          if (result.items.length > 0) {
-            allNewItems = [...allNewItems, ...result.items];
-            highestPageFetched = pagesToFetch[i];
-            latestTotalPage = result.tPage > latestTotalPage ? result.tPage : latestTotalPage;
-          }
+        currentItems = initialRes.allNewItems;
+        setItems(currentItems);
+        let currentPage = initialRes.highestPageFetched;
+        let currentTotalPage = initialRes.latestTotalPage;
+        
+        setPage(currentPage);
+        setTotalPage(currentTotalPage);
+        setLoading(false); // UI is now unblocked and showing first items
+        
+        // Loop in background to fetch up to targetMaxItems
+        while (currentItems.length < targetMaxItems && currentPage < currentTotalPage) {
+          const batchRes = await fetchBatch(currentPage + 1, 3); // fetch 3 pages per batch
+          if (!isMounted || batchRes.allNewItems.length === 0) break;
+          
+          currentItems = [...currentItems, ...batchRes.allNewItems];
+          
+          // Deduplicate
+          const uniqueItems = Array.from(new Map(currentItems.map(item => [item.slug || item.animeId, item])).values());
+          currentItems = uniqueItems;
+          
+          setItems(uniqueItems);
+          currentPage = batchRes.highestPageFetched;
+          currentTotalPage = batchRes.latestTotalPage;
+          setPage(currentPage);
+          setTotalPage(currentTotalPage);
+          
+          // Slight delay to prevent rate-limiting or heavy browser lag
+          await new Promise(r => setTimeout(r, 500));
         }
-
-        const uniqueItems = Array.from(new Map(allNewItems.map(item => [item.slug || item.animeId, item])).values());
         
-        setItems(uniqueItems);
-        setPage(highestPageFetched);
-        setTotalPage(latestTotalPage);
-        setHasMore(highestPageFetched < latestTotalPage);
+        setHasMore(currentPage < currentTotalPage);
       } catch {
-        setItems([]);
         setHasMore(false);
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+          setBackgroundLoading(false);
+        }
       }
     }
-    initialLoad();
-  }, []);
+    
+    massLoad();
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchBatch, targetMaxItems]);
 
   const displayedItems = useMemo(() => {
     let sorted = [...items];
@@ -211,7 +237,7 @@ export default function CompletedPage() {
           </div>
         )}
 
-        {items.length === 0 && !loading ? (
+        {items.length === 0 && !loading && !backgroundLoading ? (
           <div className="text-center py-32 flex flex-col items-center justify-center glass-panel rounded-3xl border border-white/5">
             <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
               <span className="text-4xl">🌸</span>
@@ -243,12 +269,24 @@ export default function CompletedPage() {
               ))}
             </div>
             
+            {/* Background loading indicator */}
+            {backgroundLoading && items.length > 0 && (
+              <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
+                <div className="flex items-center gap-3 bg-bg-secondary/90 backdrop-blur-md border border-accent-blue/50 rounded-full px-6 py-3 shadow-[0_0_20px_rgba(0,229,255,0.2)]">
+                  <Loader2 className="w-5 h-5 animate-spin text-accent-blue" />
+                  <span className="text-sm font-semibold text-white tracking-wide text-nowrap">
+                    Mengunduh hingga {targetMaxItems} anime... ({items.length})
+                  </span>
+                </div>
+              </div>
+            )}
+            
             {/* Intersection Observer target for infinite scrolling */}
-            {hasMore && (
+            {hasMore && !backgroundLoading && (
               <div ref={loadMoreRef} className="w-full h-20 bg-transparent" />
             )}
             
-            {loading && items.length > 0 && (
+            {loading && items.length > 0 && !backgroundLoading && (
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-8 py-3.5 shadow-lg">
                   <Loader2 className="w-5 h-5 animate-spin text-accent-green" />
@@ -257,7 +295,7 @@ export default function CompletedPage() {
               </div>
             )}
             
-            {!hasMore && items.length > 0 && (
+            {!hasMore && !backgroundLoading && items.length > 0 && (
               <div className="text-center py-12">
                 <p className="inline-block px-6 py-3 rounded-full bg-white/5 border border-white/10 text-text-muted text-sm font-medium">
                   Semua {items.length} anime telah dimuat 🎉
