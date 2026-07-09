@@ -30,25 +30,53 @@ export default function CompletedPage() {
   // Filter state
   const [sortBy, setSortBy] = useState<SortOption>("terbaru");
 
-  const loadMore = async () => {
-    if (!hasMore || loading) return;
-    const nextPage = page + 1;
-    setLoading(true);
+  // Fetch a specific page safely
+  const fetchPageSafely = async (pageNum: number) => {
     try {
-      const data: any = await animeClientApi.completed(nextPage);
+      const data: any = await animeClientApi.completed(pageNum);
       const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
       const newItems = Array.isArray(list) ? list : [];
       const tPage = data?.data?.totalPage || data?.totalPage || 1;
+      return { items: newItems, tPage };
+    } catch {
+      return { items: [], tPage: 1 };
+    }
+  };
+
+  const loadMore = async () => {
+    if (!hasMore || loading) return;
+    setLoading(true);
+    
+    // Fetch 3 pages at a time to load faster
+    const pagesToFetch = [page + 1, page + 2, page + 3];
+    let allNewItems: any[] = [];
+    let latestTotalPage = totalPage;
+    let highestPageFetched = page;
+
+    try {
+      const results = await Promise.all(
+        pagesToFetch.map(p => fetchPageSafely(p))
+      );
+      
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        if (result.items.length > 0) {
+          allNewItems = [...allNewItems, ...result.items];
+          highestPageFetched = pagesToFetch[i];
+          latestTotalPage = result.tPage;
+        }
+      }
       
       setItems(prev => {
         // Prevent duplicates
         const existingSlugs = new Set(prev.map(i => i.slug || i.animeId));
-        const filteredNew = newItems.filter(i => !existingSlugs.has(i.slug || i.animeId));
+        const filteredNew = allNewItems.filter(i => !existingSlugs.has(i.slug || i.animeId));
         return [...prev, ...filteredNew];
       });
-      setPage(nextPage);
-      setTotalPage(tPage);
-      setHasMore(nextPage < tPage);
+      
+      setPage(highestPageFetched);
+      setTotalPage(latestTotalPage);
+      setHasMore(highestPageFetched < latestTotalPage);
     } catch {
       setHasMore(false);
     } finally {
@@ -60,27 +88,31 @@ export default function CompletedPage() {
     async function initialLoad() {
       setLoading(true);
       try {
-        // Load page 1
-        const data1: any = await animeClientApi.completed(1);
-        const list1 = data1?.data?.animeList || (Array.isArray(data1?.data) ? data1.data : (data1?.animeList || []));
-        const newItems1 = Array.isArray(list1) ? list1 : [];
-        const tPage = data1?.data?.totalPage || data1?.totalPage || 1;
+        // Fetch up to 4 pages concurrently for a massive initial load (usually 4 x 15 = 60 items)
+        const pagesToFetch = [1, 2, 3, 4];
+        const results = await Promise.all(
+          pagesToFetch.map(p => fetchPageSafely(p))
+        );
         
-        // Optionally load page 2 automatically if there are very few items on big screens
-        let newItems2: any[] = [];
-        if (tPage > 1 && newItems1.length <= 20) {
-           const data2: any = await animeClientApi.completed(2);
-           const list2 = data2?.data?.animeList || (Array.isArray(data2?.data) ? data2.data : (data2?.animeList || []));
-           newItems2 = Array.isArray(list2) ? list2 : [];
-           setPage(2);
+        let allNewItems: any[] = [];
+        let latestTotalPage = 1;
+        let highestPageFetched = 1;
+
+        for (let i = 0; i < results.length; i++) {
+          const result = results[i];
+          if (result.items.length > 0) {
+            allNewItems = [...allNewItems, ...result.items];
+            highestPageFetched = pagesToFetch[i];
+            latestTotalPage = result.tPage > latestTotalPage ? result.tPage : latestTotalPage;
+          }
         }
 
-        const combined = [...newItems1, ...newItems2];
-        const uniqueItems = Array.from(new Map(combined.map(item => [item.slug || item.animeId, item])).values());
+        const uniqueItems = Array.from(new Map(allNewItems.map(item => [item.slug || item.animeId, item])).values());
         
         setItems(uniqueItems);
-        setTotalPage(tPage);
-        setHasMore(tPage > (newItems2.length > 0 ? 2 : 1));
+        setPage(highestPageFetched);
+        setTotalPage(latestTotalPage);
+        setHasMore(highestPageFetched < latestTotalPage);
       } catch {
         setItems([]);
         setHasMore(false);
@@ -98,7 +130,6 @@ export default function CompletedPage() {
     } else if (sortBy === "za") {
       sorted.sort((a, b) => (b.title || "").localeCompare(a.title || ""));
     }
-    // "terbaru" keeps the original array order from API
     return sorted;
   }, [items, sortBy]);
 
@@ -112,7 +143,7 @@ export default function CompletedPage() {
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-green-500/20 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
           
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 p-[1px] shadow-[0_0_30px_rgba(34,197,94,0.3)]">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-400 to-emerald-500 p-[1px] shadow-[0_0_30px_rgba(34,197,94,0.3)] shrink-0">
               <div className="w-full h-full rounded-2xl bg-bg-secondary flex items-center justify-center">
                 <CheckCircle className="w-8 h-8 text-green-500" />
               </div>
@@ -194,7 +225,7 @@ export default function CompletedPage() {
                 />
               ))}
               
-              {loading && Array.from({ length: 6 }).map((_, i) => (
+              {loading && Array.from({ length: 12 }).map((_, i) => (
                 <AnimeCardSkeleton key={`skel-${i}`} />
               ))}
             </div>
@@ -204,10 +235,10 @@ export default function CompletedPage() {
               <div className="flex justify-center py-4 mb-8">
                 <button
                   onClick={loadMore}
-                  className="group px-8 py-4 glass-panel border border-accent-blue/30 text-white font-bold rounded-full hover:bg-accent-blue/10 transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(0,229,255,0.15)]"
+                  className="group px-8 py-4 glass-panel border border-accent-blue/30 text-white font-bold rounded-full hover:bg-accent-blue/10 transition-all flex items-center gap-3 shadow-[0_0_20px_rgba(0,229,255,0.15)] cursor-pointer"
                 >
                   <ArrowDownWideNarrow className="w-5 h-5 group-hover:translate-y-1 transition-transform text-accent-blue" />
-                  Muat Lebih Banyak ({items.length} anime)
+                  Muat Lebih Banyak ({items.length} dimuat sejauh ini)
                 </button>
               </div>
             )}
@@ -216,7 +247,7 @@ export default function CompletedPage() {
               <div className="flex justify-center py-8">
                 <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-8 py-3.5 shadow-lg">
                   <Loader2 className="w-5 h-5 animate-spin text-accent-green" />
-                  <span className="text-sm font-semibold text-white tracking-wide">Memuat halaman {page + 1}...</span>
+                  <span className="text-sm font-semibold text-white tracking-wide">Menarik lebih banyak data dari server...</span>
                 </div>
               </div>
             )}
