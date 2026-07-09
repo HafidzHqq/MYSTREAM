@@ -32,6 +32,7 @@ interface VideoPlayerProps {
 export function VideoPlayer({
   streamUrl,
   servers = [],
+  animeSlug,
   episodeTitle,
   provider,
 }: VideoPlayerProps) {
