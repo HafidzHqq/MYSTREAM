@@ -33,6 +33,7 @@ interface EpisodeData {
   server?: { qualities?: { title?: string; serverList?: ServerItem[] }[] } | ServerItem[];
   qualities?: { title?: string; serverList?: ServerItem[] }[];
   downloads?: unknown;
+  poster?: string;
 }
 
 export default function EpisodePage({ params, searchParams }: PageProps) {
