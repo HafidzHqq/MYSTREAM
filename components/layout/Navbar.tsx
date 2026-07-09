@@ -10,7 +10,7 @@ const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/", label: "Beranda" },
   { href: "/ongoing", label: "Ongoing", badge: true },
   { href: "/completed", label: "Completed" },
-  { href: "/top-rating", label: "Top 30" },
+  { href: "/top-rating", label: "Top 70" },
   { href: "/schedule", label: "Jadwal" },
   { href: "/genre", label: "Genre" },
   { href: "/donghua", label: "Donghua" },

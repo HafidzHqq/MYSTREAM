@@ -49,8 +49,8 @@ export default function TopRatingPage() {
           return scoreB - scoreA; // Descending
         });
 
-        // Get Top 30
-        setTopAnime(sorted.slice(0, 30));
+        // Get Top 70
+        setTopAnime(sorted.slice(0, 70));
       } catch (error) {
         console.error("Failed to fetch top anime", error);
       } finally {
@@ -70,7 +70,7 @@ export default function TopRatingPage() {
           <Trophy className="w-8 h-8 text-white" />
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-600 tracking-tight mb-4 relative z-10">
-          TOP 30 ANIME
+          TOP 70 ANIME
         </h1>
         <p className="text-text-muted text-lg max-w-2xl mx-auto relative z-10">
           Daftar anime dengan rating tertinggi yang paling direkomendasikan untuk Anda tonton.
