@@ -23,7 +23,6 @@ type SortOption = "terbaru" | "az" | "za";
 export default function CompletedPage() {
   const [items, setItems] = useState<AnimeItem[]>([]);
   const [page, setPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
@@ -38,10 +37,9 @@ export default function CompletedPage() {
       const data: any = await animeClientApi.completed(pageNum);
       const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
       const newItems = Array.isArray(list) ? list : [];
-      const tPage = data?.data?.totalPage || data?.totalPage || 1;
-      return { items: newItems, tPage };
+      return { items: newItems, isEmpty: newItems.length === 0 };
     } catch {
-      return { items: [], tPage: 1 };
+      return { items: [], isEmpty: true };
     }
   };
 
@@ -50,18 +48,25 @@ export default function CompletedPage() {
     const results = await Promise.all(pagesToFetch.map(p => fetchPageSafely(p)));
     
     let allNewItems: any[] = [];
-    let latestTotalPage = 1;
-    let highestPageFetched = startPage;
+    let highestPageFetched = startPage - 1;
+    let hitEnd = false;
 
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
-      if (result.items.length > 0) {
+      if (!result.isEmpty) {
         allNewItems = [...allNewItems, ...result.items];
         highestPageFetched = pagesToFetch[i];
-        latestTotalPage = result.tPage > latestTotalPage ? result.tPage : latestTotalPage;
+      }
+      if (result.isEmpty || result.items.length < 10) {
+        hitEnd = true;
       }
     }
-    return { allNewItems, highestPageFetched, latestTotalPage };
+    // If we didn't fetch any new items, we keep the previous highest page
+    if (highestPageFetched < startPage) {
+       highestPageFetched = startPage - 1;
+    }
+    
+    return { allNewItems, highestPageFetched, hitEnd };
   }, []);
 
   const loadMore = useCallback(async () => {
@@ -69,8 +74,8 @@ export default function CompletedPage() {
     setLoading(true);
     
     try {
-      // Muat 3 halaman sekaligus tiap kali scroll mentok bawah (sekitar 45 anime)
-      const { allNewItems, highestPageFetched, latestTotalPage } = await fetchBatch(page + 1, 3);
+      // Muat 3 halaman sekaligus tiap kali scroll mentok bawah
+      const { allNewItems, highestPageFetched, hitEnd } = await fetchBatch(page + 1, 3);
       
       setItems(prev => {
         const existingSlugs = new Set(prev.map(i => i.slug || i.animeId));
@@ -78,15 +83,16 @@ export default function CompletedPage() {
         return [...prev, ...filteredNew];
       });
       
-      setPage(highestPageFetched);
-      setTotalPage(latestTotalPage);
-      setHasMore(highestPageFetched < latestTotalPage);
+      if (highestPageFetched >= page + 1) {
+        setPage(highestPageFetched);
+      }
+      setHasMore(!hitEnd);
     } catch {
       setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }, [hasMore, loading, page, totalPage, fetchBatch]);
+  }, [hasMore, loading, page, fetchBatch]);
 
   const loadMoreRef = useCallback((node: HTMLDivElement) => {
     if (loading) return;
@@ -96,7 +102,7 @@ export default function CompletedPage() {
       if (entries[0].isIntersecting && hasMore) {
         loadMore();
       }
-    }, { rootMargin: '400px' }); // Memicu sebelum pengguna benar-benar sampai bawah
+    }, { rootMargin: '400px' });
 
     if (node) observer.current.observe(node);
   }, [loading, hasMore, loadMore]);
@@ -114,9 +120,10 @@ export default function CompletedPage() {
         const uniqueItems = Array.from(new Map(initialRes.allNewItems.map(item => [item.slug || item.animeId, item])).values());
         
         setItems(uniqueItems);
-        setPage(initialRes.highestPageFetched);
-        setTotalPage(initialRes.latestTotalPage);
-        setHasMore(initialRes.highestPageFetched < initialRes.latestTotalPage);
+        if (initialRes.highestPageFetched > 0) {
+           setPage(initialRes.highestPageFetched);
+        }
+        setHasMore(!initialRes.hitEnd);
       } catch {
         setHasMore(false);
       } finally {
