@@ -137,10 +137,10 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
             <Home className="w-4 h-4" /> Beranda
           </Link>
           <span className="font-black">/</span>
-          {episode.animeSlug && (
+          {(episode.animeSlug || (episode as any).animeId) && (
             <>
-              <Link href={`/anime/${episode.animeSlug}`} className="hover:underline uppercase">
-                {episode.animeTitle || "Detail Anime"}
+              <Link href={`/anime/${episode.animeSlug || (episode as any).animeId}`} className="hover:underline uppercase">
+                {episode.animeTitle || episode.title?.split(' Episode')[0] || "Detail Anime"}
               </Link>
               <span className="font-black">/</span>
             </>
@@ -154,8 +154,9 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
             streamUrl={defaultUrl}
             servers={resolvedServers}
             episodeSlug={slug}
-            animeSlug={episode.animeSlug}
+            animeSlug={episode.animeSlug || (episode as any).animeId}
             episodeTitle={episode.title}
+            poster={episode.poster}
             provider={provider}
           />
         </div>

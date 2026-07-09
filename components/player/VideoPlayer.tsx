@@ -26,6 +26,7 @@ interface VideoPlayerProps {
   episodeSlug?: string;
   animeSlug?: string;
   episodeTitle?: string;
+  poster?: string;
   provider?: string;
 }
 
@@ -34,6 +35,7 @@ export function VideoPlayer({
   servers = [],
   animeSlug,
   episodeTitle,
+  poster,
   provider,
 }: VideoPlayerProps) {
   const [currentUrl, setCurrentUrl] = useState("");
@@ -143,7 +145,7 @@ export function VideoPlayer({
               slug: animeSlug,
               title: episodeTitle.split(' Episode')[0] || episodeTitle,
               episode: episodeTitle,
-              poster: '/placeholder-player.jpg', // can be updated if we pass poster to player
+              poster: poster || '/placeholder-player.jpg', 
               watched_at: new Date().toISOString()
             }, {
               onConflict: 'user_id, slug'
@@ -160,7 +162,7 @@ export function VideoPlayer({
     }, 5000);
     
     return () => clearTimeout(timer);
-  }, [animeSlug, episodeTitle]);
+  }, [animeSlug, episodeTitle, poster]);
 
   function detectQuality(name: string): string {
     const lower = name.toLowerCase();
