@@ -12,7 +12,7 @@ const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/ongoing", label: "Ongoing", badge: true },
   { href: "/completed", label: "Completed" },
   { href: "/top-rating", label: "Top 70" },
-  { href: "/schedule", label: "Jadwal" },
+  { href: "/favorites", label: "Favorit" },
   { href: "/genre", label: "Genre" },
   { href: "/history", label: "History" },
 ];
