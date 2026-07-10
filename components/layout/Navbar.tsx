@@ -13,6 +13,7 @@ const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/completed", label: "Completed" },
   { href: "/top-rating", label: "Top 70" },
   { href: "/favorites", label: "Favorit" },
+  { href: "/schedule", label: "Jadwal" },
   { href: "/genre", label: "Genre" },
   { href: "/history", label: "History" },
 ];
@@ -72,11 +73,8 @@ export function Navbar() {
             {/* Logo */}
             <Link href="/" className="flex items-center group gap-3">
               <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-glow-blue">
-                <Image src="/logo.jpg" alt="QQ" fill className="object-cover" unoptimized />
+                <Image src="/logo.jpg" alt="QQ Logo" fill className="object-cover" unoptimized />
               </div>
-              <span className="text-xl md:text-2xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent-purple group-hover:to-accent-blue transition-all">
-                QQ
-              </span>
             </Link>
 
             {/* Desktop Nav Links */}

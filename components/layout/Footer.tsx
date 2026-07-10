@@ -36,11 +36,8 @@ export function Footer() {
             <div className="col-span-2 md:col-span-1">
               <Link href="/" className="flex items-center gap-3 mb-6 group">
                 <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-glow-blue">
-                  <Image src="/logo.jpg" alt="QQ.stream" fill className="object-cover" unoptimized />
+                  <Image src="/logo.jpg" alt="QQ" fill className="object-cover" unoptimized />
                 </div>
-                <span className="text-2xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent-purple group-hover:to-accent-blue transition-all">
-                  QQ
-                </span>
               </Link>
               <p className="text-text-muted text-sm leading-relaxed mb-6">
                 Platform streaming anime Indonesia terlengkap dengan desain antarmuka modern yang nyaman di mata.
