@@ -6,7 +6,8 @@ import { animeClientApi } from "@/lib/api/animeClient";
 
 interface ScheduleAnime {
   title: string;
-  slug: string;
+  slug?: string;
+  animeId?: string;
   time?: string;
   episode?: string;
 }
@@ -15,6 +16,16 @@ interface ScheduleDay {
   day: string;
   animeList: ScheduleAnime[];
 }
+
+const dayTranslation: Record<string, string> = {
+  "sunday": "Minggu",
+  "monday": "Senin",
+  "tuesday": "Selasa",
+  "wednesday": "Rabu",
+  "thursday": "Kamis",
+  "friday": "Jumat",
+  "saturday": "Sabtu"
+};
 
 export default function SchedulePage() {
   const [schedule, setSchedule] = useState<ScheduleDay[]>([]);
@@ -29,7 +40,7 @@ export default function SchedulePage() {
       setLoading(true);
       try {
         const data: any = await animeClientApi.schedule();
-        const list = data?.data || data?.scheduleList || [];
+        const list = data?.data?.days || data?.data || data?.scheduleList || [];
         setSchedule(Array.isArray(list) ? list : []);
       } catch {
         setSchedule([]);
@@ -82,7 +93,8 @@ export default function SchedulePage() {
         ) : schedule.length > 0 ? (
           <div className="space-y-8">
             {schedule.map((dayData) => {
-              const isToday = dayData.day.toLowerCase() === currentDayName.toLowerCase();
+              const translatedDay = dayTranslation[dayData.day.toLowerCase()] || dayData.day;
+              const isToday = translatedDay.toLowerCase() === currentDayName.toLowerCase();
               return (
                 <div
                   key={dayData.day}
@@ -96,7 +108,7 @@ export default function SchedulePage() {
                   <div className="flex flex-wrap items-center justify-between mb-8 gap-4">
                     <h2 className="text-2xl font-bold text-white flex items-center gap-3">
                       <Calendar className={`w-7 h-7 ${isToday ? "text-accent-blue" : "text-text-muted"}`} />
-                      Hari {dayData.day}
+                      Hari {translatedDay}
                     </h2>
                     {isToday && (
                       <span className="px-4 py-1.5 text-xs font-bold uppercase tracking-wider bg-accent-blue/10 text-accent-blue border border-accent-blue/20 rounded-full flex items-center gap-2">
@@ -111,8 +123,8 @@ export default function SchedulePage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {dayData.animeList.map((anime) => (
                         <Link
-                          key={anime.slug}
-                          href={`/anime/${anime.slug}`}
+                          key={anime.slug || anime.animeId}
+                          href={`/anime/${anime.slug || anime.animeId}`}
                           className="flex items-center justify-between p-4 md:p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl"
                         >
                           <div className="min-w-0 flex-1 mr-4">

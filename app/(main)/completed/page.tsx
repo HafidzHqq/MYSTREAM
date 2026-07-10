@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
 import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
-import { Loader2, CheckCircle, Filter, ArrowDownWideNarrow } from "lucide-react";
+import { Loader2, CheckCircle, Filter, ArrowDownWideNarrow, ChevronDown } from "lucide-react";
 import { animeClientApi } from "@/lib/api/animeClient";
 import { clsx } from "clsx";
 
@@ -26,26 +26,47 @@ export default function CompletedPage() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   
-  // Filter state
+  // Genres list and filter state
+  const [genres, setGenres] = useState<{ title: string; genreId: string }[]>([]);
+  const [selectedGenre, setSelectedGenre] = useState<string>("");
   const [sortBy, setSortBy] = useState<SortOption>("terbaru");
   
   // Infinite scroll observer
   const observer = useRef<IntersectionObserver | null>(null);
 
-  const fetchPageSafely = async (pageNum: number) => {
+  // Fetch genres list on mount
+  useEffect(() => {
+    async function loadGenres() {
+      try {
+        const res: any = await animeClientApi.genreList();
+        const list = res?.data?.genreList || res?.genreList || [];
+        setGenres(Array.isArray(list) ? list : []);
+      } catch (err) {
+        console.error("Failed to load genres:", err);
+      }
+    }
+    loadGenres();
+  }, []);
+
+  const fetchPageSafely = useCallback(async (pageNum: number, genreId: string) => {
     try {
-      const data: any = await animeClientApi.completed(pageNum);
+      let data: any;
+      if (genreId) {
+        data = await animeClientApi.genreAnime(genreId, pageNum);
+      } else {
+        data = await animeClientApi.completed(pageNum);
+      }
       const list = data?.data?.animeList || (Array.isArray(data?.data) ? data.data : (data?.animeList || []));
       const newItems = Array.isArray(list) ? list : [];
       return { items: newItems, isEmpty: newItems.length === 0 };
     } catch {
       return { items: [], isEmpty: true };
     }
-  };
+  }, []);
 
   const fetchBatch = useCallback(async (startPage: number, batchSize: number) => {
     const pagesToFetch = Array.from({ length: batchSize }, (_, i) => startPage + i);
-    const results = await Promise.all(pagesToFetch.map(p => fetchPageSafely(p)));
+    const results = await Promise.all(pagesToFetch.map(p => fetchPageSafely(p, selectedGenre)));
     
     let allNewItems: any[] = [];
     let highestPageFetched = startPage - 1;
@@ -67,7 +88,7 @@ export default function CompletedPage() {
     }
     
     return { allNewItems, highestPageFetched, hitEnd };
-  }, []);
+  }, [selectedGenre, fetchPageSafely]);
 
   const loadMore = useCallback(async () => {
     if (!hasMore || loading) return;
@@ -107,6 +128,13 @@ export default function CompletedPage() {
     if (node) observer.current.observe(node);
   }, [loading, hasMore, loadMore]);
 
+  // Handle selectedGenre resets
+  useEffect(() => {
+    setItems([]);
+    setPage(1);
+    setHasMore(true);
+  }, [selectedGenre]);
+
   // Initial load
   useEffect(() => {
     let isMounted = true;
@@ -121,7 +149,7 @@ export default function CompletedPage() {
         
         setItems(uniqueItems);
         if (initialRes.highestPageFetched > 0) {
-           setPage(initialRes.highestPageFetched);
+            setPage(initialRes.highestPageFetched);
         }
         setHasMore(!initialRes.hitEnd);
       } catch {
@@ -175,43 +203,65 @@ export default function CompletedPage() {
         </div>
 
         {/* Filters */}
-        {items.length > 0 && (
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-            <div className="flex items-center gap-3 mb-4 sm:mb-0">
-              <Filter className="w-5 h-5 text-accent-blue" />
-              <span className="text-white font-semibold">Urutkan Data Saat Ini:</span>
-            </div>
-            <div className="flex gap-2 bg-black/40 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
-              <button 
-                onClick={() => setSortBy("terbaru")}
-                className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all",
-                  sortBy === "terbaru" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
-                )}
-              >
-                Terbaru
-              </button>
-              <button 
-                onClick={() => setSortBy("az")}
-                className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2",
-                  sortBy === "az" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
-                )}
-              >
-                <ArrowDownWideNarrow className="w-4 h-4" /> Abjad A-Z
-              </button>
-              <button 
-                onClick={() => setSortBy("za")}
-                className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2",
-                  sortBy === "za" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
-                )}
-              >
-                <ArrowDownWideNarrow className="w-4 h-4 rotate-180" /> Z-A
-              </button>
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-8 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto">
+            {/* Genre Filter */}
+            {genres.length > 0 && (
+              <div className="relative min-w-[200px] w-full sm:w-auto">
+                <select
+                  value={selectedGenre}
+                  onChange={(e) => setSelectedGenre(e.target.value)}
+                  className="w-full appearance-none bg-black/60 border border-white/10 text-white rounded-xl px-4 py-2.5 pr-10 text-sm font-semibold focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue transition-all"
+                >
+                  <option value="">Semua Kategori (Genre)</option>
+                  {genres.map((g) => (
+                    <option key={g.genreId} value={g.genreId}>
+                      {g.title}
+                    </option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-text-muted">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-center gap-2 text-white/80">
+              <Filter className="w-4 h-4 text-accent-blue" />
+              <span className="text-sm font-medium">Urutkan:</span>
             </div>
           </div>
-        )}
+
+          <div className="flex gap-2 bg-black/40 p-1 rounded-xl w-full md:w-auto overflow-x-auto">
+            <button 
+              onClick={() => setSortBy("terbaru")}
+              className={clsx(
+                "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex-1 md:flex-initial text-center",
+                sortBy === "terbaru" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
+              )}
+            >
+              Terbaru
+            </button>
+            <button 
+              onClick={() => setSortBy("az")}
+              className={clsx(
+                "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-2 flex-1 md:flex-initial",
+                sortBy === "az" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
+              )}
+            >
+              <ArrowDownWideNarrow className="w-4 h-4" /> A-Z
+            </button>
+            <button 
+              onClick={() => setSortBy("za")}
+              className={clsx(
+                "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center justify-center gap-2 flex-1 md:flex-initial",
+                sortBy === "za" ? "bg-accent-blue text-white shadow-lg" : "text-text-muted hover:text-white"
+              )}
+            >
+              <ArrowDownWideNarrow className="w-4 h-4 rotate-180" /> Z-A
+            </button>
+          </div>
+        </div>
 
         {items.length === 0 && !loading ? (
           <div className="text-center py-32 flex flex-col items-center justify-center glass-panel rounded-3xl border border-white/5">

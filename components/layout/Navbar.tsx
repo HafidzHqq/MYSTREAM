@@ -14,7 +14,6 @@ const navLinks: { href: string; label: string; badge?: boolean }[] = [
   { href: "/top-rating", label: "Top 70" },
   { href: "/favorites", label: "Favorit" },
   { href: "/schedule", label: "Jadwal" },
-  { href: "/genre", label: "Genre" },
   { href: "/history", label: "History" },
 ];
 
