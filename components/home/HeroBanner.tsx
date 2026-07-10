@@ -39,7 +39,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden bg-bg-primary h-[80vh] min-h-[600px] max-h-[900px]">
+    <div className="relative w-full overflow-hidden bg-bg-primary h-[55vh] md:h-[80vh] min-h-[340px] md:min-h-[600px] max-h-[900px]">
       {/* Slides */}
       <div className="relative w-full h-full">
         {items.map((item, index) => {
@@ -67,7 +67,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
               </div>
 
               {/* Content Container */}
-              <div className="relative w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center pt-24 pb-10 sm:pt-20">
+              <div className="relative w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center pt-16 md:pt-20 pb-8 md:pb-10">
                 <div className="flex flex-row items-center justify-between w-full gap-4 md:gap-8 lg:gap-16">
                   
                   {/* Left: Text & Actions */}
