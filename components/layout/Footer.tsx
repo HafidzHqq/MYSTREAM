@@ -39,7 +39,7 @@ export function Footer() {
                   <Image src="/logo.jpg" alt="QQ.stream" fill className="object-cover" unoptimized />
                 </div>
                 <span className="text-2xl font-black tracking-tight text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-accent-purple group-hover:to-accent-blue transition-all">
-                  QQ.stream
+                  QQ
                 </span>
               </Link>
               <p className="text-text-muted text-sm leading-relaxed mb-6">
@@ -66,7 +66,7 @@ export function Footer() {
                   {links.map((link) => (
                     <li key={link.href}>
                       <Link
-                        href={link.href}
+                         href={link.href}
                         className="text-sm text-text-muted hover:text-accent-blue transition-colors flex items-center gap-2 group"
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-accent-blue/30 group-hover:bg-accent-blue transition-colors"></span>
@@ -81,10 +81,7 @@ export function Footer() {
 
           <div className="mt-16 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-text-muted text-xs">
-              © {new Date().getFullYear()} QQ.stream. Data from{" "}
-              <a href="https://www.sankavollerei.web.id/anime/" target="_blank" rel="noopener" className="text-accent-blue font-medium hover:underline">
-                Sanka Vollerei API
-              </a>
+              © {new Date().getFullYear()} QQ. All rights reserved.
             </p>
             <p className="text-text-muted text-xs flex items-center gap-1">
               Dibuat dengan <span className="text-accent-pink animate-pulse">❤️</span> untuk pecinta anime Indonesia

@@ -44,7 +44,7 @@ export default function LoginClient() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden relative bg-transparent mx-auto">
-              <Image src="/logo.jpg" alt="QQ.stream" fill className="object-contain" unoptimized />
+              <Image src="/logo.jpg" alt="QQ" fill className="object-contain" unoptimized />
             </div>
           </Link>
           <p className="text-text-muted text-sm mt-2">Masuk untuk akses fitur lengkap</p>

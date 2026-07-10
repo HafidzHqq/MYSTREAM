@@ -83,7 +83,7 @@ export default function HomePage() {
         <div className="h-[60vh] min-h-[500px] w-full relative flex items-center justify-center overflow-hidden bg-bg-secondary">
           <div className="absolute inset-0 bg-gradient-to-r from-accent-purple/20 to-accent-blue/20 blur-3xl opacity-50"></div>
           <div className="relative z-10 text-center px-4 glass-panel p-10 max-w-2xl rounded-3xl animate-fade-in border border-white/10 shadow-2xl">
-            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 mb-6 tracking-tight">QQ.stream</h1>
+            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 mb-6 tracking-tight">QQ</h1>
             <p className="text-text-secondary text-lg md:text-xl font-medium max-w-lg mx-auto">
               Nonton anime sub indo terupdate, lengkap dengan visual memanjakan mata.
             </p>

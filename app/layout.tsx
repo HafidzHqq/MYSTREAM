@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "QQ.stream - Nonton Anime Sub Indo Gratis",
+  title: "QQ - Nonton Anime Sub Indo Gratis",
   description:
     "Tempat nonton streaming anime sub indo terlengkap, tercepat, dan tanpa iklan mengganggu. Update setiap hari.",
   themeColor: "#8b5cf6",
@@ -34,13 +34,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: "id_ID",
     url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "QQ.stream",
-    title: "QQ.stream - Nonton Anime Sub Indo Gratis",
+    siteName: "QQ",
+    title: "QQ - Nonton Anime Sub Indo Gratis",
     description: "Platform streaming anime Indonesia terlengkap.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "QQ.stream",
+    title: "QQ",
     description: "Platform streaming anime Indonesia terlengkap.",
   },
   robots: {
