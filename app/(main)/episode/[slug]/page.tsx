@@ -25,8 +25,8 @@ interface EpisodeData {
   title?: string;
   animeTitle?: string;
   animeSlug?: string;
-  prevEpisode?: string | { slug?: string };
-  nextEpisode?: string | { slug?: string };
+  prevEpisode?: string | { slug?: string; episodeId?: string };
+  nextEpisode?: string | { slug?: string; episodeId?: string };
   defaultStreamingUrl?: string;
   streamingUrl?: string;
   servers?: ServerItem[] | any;
@@ -122,11 +122,11 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
 
   const prevSlug = typeof episode.prevEpisode === "string"
     ? episode.prevEpisode
-    : episode.prevEpisode?.slug;
+    : (episode.prevEpisode?.slug || episode.prevEpisode?.episodeId);
 
   const nextSlug = typeof episode.nextEpisode === "string"
     ? episode.nextEpisode
-    : episode.nextEpisode?.slug;
+    : (episode.nextEpisode?.slug || episode.nextEpisode?.episodeId);
 
   return (
     <div className="min-h-screen bg-bg-primary mt-16 md:mt-20">
