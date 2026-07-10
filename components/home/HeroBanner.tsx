@@ -67,59 +67,59 @@ export function HeroBanner({ items }: HeroBannerProps) {
               </div>
 
               {/* Content Container */}
-              <div className="relative w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center pt-20 pb-10">
-                <div className="flex flex-col md:flex-row items-center justify-between w-full gap-8 lg:gap-16">
+              <div className="relative w-full h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center pt-24 pb-10 sm:pt-20">
+                <div className="flex flex-row items-center justify-between w-full gap-4 md:gap-8 lg:gap-16">
                   
                   {/* Left: Text & Actions */}
-                  <div className={clsx("w-full md:w-3/5 xl:w-1/2 flex flex-col items-start transition-all duration-700 delay-100", isActive ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0")}>
+                  <div className={clsx("flex-1 md:w-3/5 xl:w-1/2 flex flex-col items-start transition-all duration-700 delay-100", isActive ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0")}>
                     
                     {/* Badge Row */}
-                    <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
                       {item.type && (
-                        <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-accent-blue bg-accent-blue/10 border border-accent-blue/20 rounded-full backdrop-blur-sm">
+                        <span className="px-2.5 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold uppercase tracking-wider text-accent-blue bg-accent-blue/10 border border-accent-blue/20 rounded-full backdrop-blur-sm">
                           {item.type}
                         </span>
                       )}
                       {item.score && (
-                        <div className="flex items-center gap-1 px-3 py-1 text-xs font-bold text-accent-yellow bg-accent-yellow/10 border border-accent-yellow/20 rounded-full backdrop-blur-sm">
-                          <Star className="w-3.5 h-3.5 fill-accent-yellow" />
+                        <div className="flex items-center gap-1 px-2.5 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-accent-yellow bg-accent-yellow/10 border border-accent-yellow/20 rounded-full backdrop-blur-sm">
+                          <Star className="w-3 h-3 md:w-3.5 md:h-3.5 fill-accent-yellow" />
                           {parseFloat(item.score.toString()).toFixed(1)}
                         </div>
                       )}
                     </div>
 
                     {/* Title */}
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 drop-shadow-2xl line-clamp-3">
+                    <h1 className="text-xl sm:text-2xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.2] md:leading-[1.1] mb-3 md:mb-6 drop-shadow-2xl line-clamp-2 md:line-clamp-3">
                       {item.title}
                     </h1>
 
                     {/* Synopsis */}
-                    <p className="text-base md:text-lg text-text-secondary font-medium leading-relaxed max-w-2xl line-clamp-3 mb-8 drop-shadow-md">
+                    <p className="hidden md:block text-base md:text-lg text-text-secondary font-medium leading-relaxed max-w-2xl line-clamp-3 mb-8 drop-shadow-md">
                       {item.synopsis || "Saksikan keseruan petualangan anime ini lengkap dengan sub indo berkualitas tinggi. Update rilis cepat dan server streaming lancar."}
                     </p>
 
                     {/* Action Buttons */}
-                    <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-2.5 md:gap-4 mt-2 md:mt-0">
                       <Link
                         href={`/anime/${item.slug}`}
-                        className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-gradient-to-r from-accent-purple to-accent-blue text-white font-bold rounded-full transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-white/10"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-8 md:py-3.5 bg-gradient-to-r from-accent-purple to-accent-blue text-white font-bold rounded-full text-xs md:text-base transition-all hover:scale-105 hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] border border-white/10"
                       >
-                        <Play className="w-5 h-5 fill-white" />
+                        <Play className="w-4 h-4 md:w-5 md:h-5 fill-white" />
                         Mulai Menonton
                       </Link>
                       <Link
                         href={`/anime/${item.slug}`}
-                        className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white/10 text-white font-bold rounded-full transition-all hover:bg-white/20 hover:scale-105 backdrop-blur-md border border-white/10"
+                        className="inline-flex items-center justify-center gap-2 px-5 py-2.5 md:px-8 md:py-3.5 bg-white/10 text-white font-bold rounded-full text-xs md:text-base transition-all hover:bg-white/20 hover:scale-105 backdrop-blur-md border border-white/10"
                       >
-                        <Info className="w-5 h-5" />
+                        <Info className="w-4 h-4 md:w-5 md:h-5" />
                         Detail Info
                       </Link>
                     </div>
                   </div>
 
                   {/* Right: Poster Image */}
-                  <div className={clsx("hidden md:flex w-full md:w-2/5 xl:w-1/3 items-center justify-center transition-all duration-1000 delay-300", isActive ? "translate-x-0 opacity-100 scale-100" : "translate-x-12 opacity-0 scale-95")}>
-                    <div className="relative w-full max-w-sm aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 group">
+                  <div className={clsx("flex w-24 sm:w-32 md:w-2/5 xl:w-1/3 items-center justify-center shrink-0 transition-all duration-1000 delay-300", isActive ? "translate-x-0 opacity-100 scale-100" : "translate-x-12 opacity-0 scale-95")}>
+                    <div className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 group">
                       <Image
                         src={item.thumbnail}
                         alt={item.title}
