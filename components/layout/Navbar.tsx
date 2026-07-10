@@ -77,7 +77,7 @@ export function Navbar() {
             </Link>
 
             {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-2 py-1.5 backdrop-blur-md">
+            <div className="hidden xl:flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-2 py-1.5 backdrop-blur-md">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
@@ -143,7 +143,7 @@ export function Navbar() {
               {/* Mobile Menu Toggle */}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="lg:hidden p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                className="xl:hidden p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -153,7 +153,7 @@ export function Navbar() {
 
         {/* Mobile Menu */}
         <div className={clsx(
-          "lg:hidden absolute top-full left-0 right-0 bg-bg-primary/95 backdrop-blur-xl border-b border-white/5 transition-all duration-300 overflow-hidden",
+          "xl:hidden absolute top-full left-0 right-0 bg-bg-primary/95 backdrop-blur-xl border-b border-white/5 transition-all duration-300 overflow-hidden",
           mobileOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
         )}>
           <div className="px-4 py-4 flex flex-col gap-2">

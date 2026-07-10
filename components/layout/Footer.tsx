@@ -7,18 +7,18 @@ const footerLinks = {
     { label: "Beranda", href: "/" },
     { label: "Ongoing", href: "/ongoing" },
     { label: "Completed", href: "/completed" },
-    { label: "Jadwal", href: "/schedule" },
+    { label: "Jadwal Rilis", href: "/schedule" },
   ],
   Kategori: [
     { label: "Action", href: "/genre/action" },
     { label: "Romance", href: "/genre/romance" },
     { label: "Fantasy", href: "/genre/fantasy" },
-    { label: "Donghua", href: "/donghua" },
+    { label: "Isekai", href: "/genre/isekai" },
   ],
   Lainnya: [
-    { label: "Genre", href: "/genre" },
+    { label: "Favorit Saya", href: "/favorites" },
+    { label: "Riwayat Nonton", href: "/history" },
     { label: "Cari Anime", href: "/search" },
-    { label: "Jadwal Rilis", href: "/schedule" },
   ],
 };
 
