@@ -86,11 +86,6 @@ export function HeroBanner({ items }: HeroBannerProps) {
                           {parseFloat(item.score.toString()).toFixed(1)}
                         </div>
                       )}
-                      {item.provider && (
-                        <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider text-white bg-white/10 border border-white/20 rounded-full backdrop-blur-sm">
-                          {item.provider}
-                        </span>
-                      )}
                     </div>
 
                     {/* Title */}
