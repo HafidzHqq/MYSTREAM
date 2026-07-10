@@ -39,7 +39,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="relative w-full overflow-hidden bg-bg-primary h-[55vh] md:h-[80vh] min-h-[340px] md:min-h-[600px] max-h-[900px]">
+    <div className="relative w-full overflow-hidden bg-bg-primary h-[60vh] md:h-[80vh] min-h-[420px] md:min-h-[600px] max-h-[900px]">
       {/* Slides */}
       <div className="relative w-full h-full">
         {items.map((item, index) => {
@@ -94,7 +94,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
                     </h1>
 
                     {/* Synopsis */}
-                    <p className="hidden md:block text-base md:text-lg text-text-secondary font-medium leading-relaxed max-w-2xl line-clamp-3 mb-8 drop-shadow-md">
+                    <p className="text-xs sm:text-sm md:text-lg text-text-secondary font-medium leading-relaxed max-w-2xl line-clamp-2 md:line-clamp-3 mb-4 md:mb-8 drop-shadow-md">
                       {item.synopsis || "Saksikan keseruan petualangan anime ini lengkap dengan sub indo berkualitas tinggi. Update rilis cepat dan server streaming lancar."}
                     </p>
 
