@@ -141,7 +141,7 @@ export function HeroBanner({ items }: HeroBannerProps) {
       {/* Navigation Buttons */}
       {items.length > 1 && (
         <>
-          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 max-w-7xl mx-auto px-2 sm:px-4 flex justify-between z-20 pointer-events-none">
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 max-w-7xl mx-auto px-2 sm:px-4 hidden md:flex justify-between z-20 pointer-events-none">
             <button
               onClick={prevSlide}
               className="p-3 rounded-full bg-black/30 backdrop-blur-md border border-white/10 text-white hover:bg-white/10 hover:text-white hover:scale-110 transition-all shadow-xl pointer-events-auto"
@@ -156,21 +156,6 @@ export function HeroBanner({ items }: HeroBannerProps) {
             >
               <ChevronRight className="w-6 h-6" />
             </button>
-          </div>
-
-          {/* Dots Indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2 p-3 rounded-full bg-black/20 backdrop-blur-sm border border-white/5">
-            {items.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrentIndex(i)}
-                className={clsx(
-                  "h-1.5 rounded-full transition-all duration-300",
-                  i === currentIndex ? "w-8 bg-accent-blue shadow-[0_0_10px_rgba(59,130,246,0.8)]" : "w-2 bg-white/30 hover:bg-white/60"
-                )}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
           </div>
         </>
       )}
