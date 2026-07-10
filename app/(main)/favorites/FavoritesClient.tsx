@@ -129,7 +129,7 @@ export default function FavoritesClient() {
                   </div>
                 </Link>
                 <button onClick={() => removeFavorite(fav.slug)}
-                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/80 text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600">
+                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500/80 text-white opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-600">
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
                 <div className="p-3">

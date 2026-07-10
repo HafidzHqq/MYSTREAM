@@ -112,7 +112,7 @@ export default function HistoryPage() {
                 <button 
                   onClick={() => removeHistory(item.id)}
                   title="Hapus dari riwayat"
-                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-bg-primary/80 backdrop-blur-md text-red-400 border border-red-500/20 opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/20 hover:border-red-500/50"
+                  className="absolute top-2 right-2 p-1.5 rounded-lg bg-bg-primary/80 backdrop-blur-md text-red-400 border border-red-500/20 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:bg-red-500/20 hover:border-red-500/50"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

@@ -61,9 +61,9 @@ export default function HomePage() {
         const ongList = ongData?.data?.animeList || [];
         const compList = compData?.data?.animeList || [];
 
-        setRecent(Array.isArray(homeList) ? homeList.slice(0, 10).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
-        setPopular(Array.isArray(popList) ? popList.slice(0, 10).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
-        setOngoing(Array.isArray(ongList) ? ongList.map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
+        setRecent(Array.isArray(homeList) ? homeList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
+        setPopular(Array.isArray(popList) ? popList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
+        setOngoing(Array.isArray(ongList) ? ongList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
         setCompleted(Array.isArray(compList) ? compList.slice(0, 12).map((a: AnimeRaw) => normalizeAnime(a, "samehadaku")) : []);
       } catch (e) {
         console.error("Home loading error:", e);
@@ -130,117 +130,60 @@ export default function HomePage() {
           <div className="space-y-16">
             <SectionSkeleton />
             <SectionSkeleton />
+            <SectionSkeleton />
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
-            {/* Left Content Area (col-span-8) */}
-            <div className="lg:col-span-8 space-y-20 md:space-y-32">
-              {/* Section: Recent Updates */}
-              {recent.length > 0 && (
-                <AnimeSection
-                  title="Rilis Terbaru"
-                  subtitle="Episode anime terbaru yang baru saja tayang"
-                  items={recent as any}
-                  viewAllHref="/ongoing"
-                  provider="samehadaku"
-                />
-              )}
-
-              {/* Section: Ongoing */}
-              {ongoing.length > 0 && (
-                <div className="relative py-12 px-6 md:px-12 rounded-3xl glass-panel border border-white/5 overflow-hidden">
-                  <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-blue/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accent-purple/10 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-                  
-                  <div className="relative z-10">
-                    <AnimeSection
-                      title="Sedang Tayang (Ongoing)"
-                      subtitle="Anime populer musim ini yang pantang dilewatkan"
-                      items={ongoing as any}
-                      viewAllHref="/ongoing"
-                      provider="samehadaku"
-                    />
-                  </div>
+          <div className="space-y-20 md:space-y-32">
+            {/* Section: Trending / Terpopuler */}
+            {popular.length > 0 && (
+              <div className="relative py-12 px-6 md:px-12 rounded-3xl glass-panel border border-white/5 overflow-hidden">
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-purple/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accent-blue/10 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
+                
+                <div className="relative z-10">
+                  <AnimeSection
+                    title="Trending Minggu Ini"
+                    subtitle="Anime paling populer dan paling banyak dicari minggu ini"
+                    items={popular as any}
+                    viewAllHref="/ongoing"
+                    provider="samehadaku"
+                  />
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Section: Completed */}
-              {completed.length > 0 && (
-                <AnimeSection
-                  title="Anime Tamat (Completed)"
-                  subtitle="Siap ditonton maraton sampai akhir episode"
-                  items={completed as any}
-                  viewAllHref="/completed"
-                  provider="samehadaku"
-                />
-              )}
-            </div>
+            {/* Section: Recent Updates */}
+            {recent.length > 0 && (
+              <AnimeSection
+                title="Rilis Terbaru"
+                subtitle="Episode anime terbaru yang baru saja tayang"
+                items={recent as any}
+                viewAllHref="/ongoing"
+                provider="samehadaku"
+              />
+            )}
 
-            {/* Right Sidebar Area (col-span-4) */}
-            <div className="lg:col-span-4 lg:sticky lg:top-24 space-y-6">
-              {popular.length > 0 && (
-                <div className="p-6 rounded-3xl glass-panel border border-white/10 shadow-[0_0_50px_rgba(139,92,246,0.05)]">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-purple to-accent-blue flex items-center justify-center shadow-[0_0_15px_rgba(139,92,246,0.3)]">
-                      <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-black text-white tracking-tight">Terpopuler</h2>
-                      <p className="text-[10px] text-text-secondary font-semibold uppercase tracking-wider">Trending Minggu Ini</p>
-                    </div>
-                  </div>
+            {/* Section: Ongoing */}
+            {ongoing.length > 0 && (
+              <AnimeSection
+                title="Sedang Tayang (Ongoing)"
+                subtitle="Anime populer musim ini yang pantang dilewatkan"
+                items={ongoing as any}
+                viewAllHref="/ongoing"
+                provider="samehadaku"
+              />
+            )}
 
-                  <div className="space-y-4">
-                    {popular.map((anime: any, index) => (
-                      <Link
-                        key={anime.slug || anime.animeId}
-                        href={`/anime/${anime.slug}`}
-                        className="flex items-center gap-4 p-2.5 rounded-2xl bg-white/0 hover:bg-white/5 border border-transparent hover:border-white/5 transition-all duration-300 group"
-                      >
-                        {/* Rank */}
-                        <div className={clsx(
-                          "w-7 h-7 rounded-lg flex items-center justify-center font-black text-xs border shrink-0 transition-all",
-                          index === 0 && "bg-amber-400/20 text-amber-400 border-amber-400/30 shadow-[0_0_10px_rgba(251,191,36,0.2)] scale-110",
-                          index === 1 && "bg-slate-300/20 text-slate-300 border-slate-300/30 scale-105",
-                          index === 2 && "bg-amber-700/20 text-amber-500 border-amber-500/30",
-                          index > 2 && "bg-white/5 text-text-secondary border-white/10 group-hover:border-white/20"
-                        )}>
-                          {index + 1}
-                        </div>
-
-                        {/* Thumbnail */}
-                        <div className="relative w-11 h-14 rounded-xl overflow-hidden border border-white/10 group-hover:border-white/20 transition-colors shrink-0 bg-bg-secondary">
-                          {anime.thumbnail ? (
-                            <img src={anime.thumbnail} alt={anime.title} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-black/40 text-text-muted">
-                              🖼️
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Info */}
-                        <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-xs text-white group-hover:text-accent-blue transition-colors truncate mb-1">
-                            {anime.title}
-                          </h3>
-                          <div className="flex items-center gap-2">
-                            {anime.score && anime.score !== "0" && anime.score !== 0 && (
-                              <span className="text-[9px] text-accent-yellow font-black bg-accent-yellow/10 border border-accent-yellow/20 px-1.5 py-0.5 rounded-md">
-                                ⭐ {anime.score}
-                              </span>
-                            )}
-                            <span className="text-[9px] text-text-muted font-bold bg-white/5 px-1.5 py-0.5 rounded-md">
-                              {anime.type || "TV"}
-                            </span>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
+            {/* Section: Completed */}
+            {completed.length > 0 && (
+              <AnimeSection
+                title="Anime Tamat (Completed)"
+                subtitle="Siap ditonton maraton sampai akhir episode"
+                items={completed as any}
+                viewAllHref="/completed"
+                provider="samehadaku"
+              />
+            )}
           </div>
         )}
 
