@@ -10,6 +10,10 @@ interface ScheduleAnime {
   animeId?: string;
   time?: string;
   episode?: string;
+  poster?: string;
+  type?: string;
+  score?: string;
+  genres?: string;
 }
 
 interface ScheduleDay {
@@ -125,27 +129,63 @@ export default function SchedulePage() {
                         <Link
                           key={anime.slug || anime.animeId}
                           href={`/anime/${anime.slug || anime.animeId}`}
-                          className="flex items-center justify-between p-4 md:p-5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl"
+                          className="flex gap-4 p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all duration-300 group hover:-translate-y-1 hover:shadow-xl"
                         >
-                          <div className="min-w-0 flex-1 mr-4">
-                            <h3 className="font-semibold text-white group-hover:text-accent-blue transition-colors truncate text-base mb-2">
-                              {anime.title}
-                            </h3>
-                            <div className="flex flex-wrap items-center gap-2">
+                          {/* Poster Image */}
+                          <div className="relative w-16 h-24 md:w-20 md:h-28 rounded-xl overflow-hidden shrink-0 border border-white/5 group-hover:border-accent-blue/30 transition-all">
+                            {anime.poster ? (
+                              <img
+                                src={anime.poster}
+                                alt={anime.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-bg-secondary flex items-center justify-center text-text-muted">
+                                🖼️
+                              </div>
+                            )}
+                            
+                            {/* Score Tag if present */}
+                            {anime.score && anime.score !== "0" && (
+                              <div className="absolute top-1 left-1 px-1.5 py-0.5 rounded-md bg-black/70 backdrop-blur-sm text-[10px] font-black text-accent-yellow border border-accent-yellow/20">
+                                ⭐ {anime.score}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Info Column */}
+                          <div className="min-w-0 flex-1 flex flex-col justify-between py-1">
+                            <div>
+                              <h3 className="font-bold text-white group-hover:text-accent-blue transition-colors line-clamp-2 text-sm md:text-base leading-snug mb-1">
+                                {anime.title}
+                              </h3>
+                              
+                              {/* Genres */}
+                              {anime.genres && (
+                                <p className="text-[11px] text-text-secondary truncate font-medium mb-2">
+                                  {anime.genres}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* Badges/Info Row */}
+                            <div className="flex flex-wrap items-center gap-1.5">
                               {anime.time && (
-                                <span className="text-xs text-text-muted flex items-center gap-1.5 font-medium bg-black/30 px-2.5 py-1 rounded-md border border-white/5">
-                                  <Clock className="w-3.5 h-3.5 text-accent-yellow" /> {anime.time}
+                                <span className="text-[10px] md:text-xs text-accent-yellow font-semibold flex items-center gap-1 bg-accent-yellow/10 border border-accent-yellow/20 px-2 py-0.5 rounded-md">
+                                  <Clock className="w-3 h-3" /> {anime.time}
                                 </span>
                               )}
                               {anime.episode && (
-                                <span className="text-xs text-white font-bold bg-accent-purple/20 border border-accent-purple/30 px-2.5 py-1 rounded-md">
+                                <span className="text-[10px] md:text-xs text-white font-bold bg-accent-purple/20 border border-accent-purple/30 px-2 py-0.5 rounded-md">
                                   {anime.episode}
                                 </span>
                               )}
+                              {anime.type && (
+                                <span className="text-[10px] md:text-xs text-text-muted font-medium bg-white/5 border border-white/5 px-2 py-0.5 rounded-md">
+                                  {anime.type}
+                                </span>
+                              )}
                             </div>
-                          </div>
-                          <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-accent-blue group-hover:border-accent-blue group-hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] transition-all duration-300">
-                            <Play className="w-5 h-5 text-text-muted group-hover:text-white group-hover:fill-white ml-0.5 transition-colors" />
                           </div>
                         </Link>
                       ))}
