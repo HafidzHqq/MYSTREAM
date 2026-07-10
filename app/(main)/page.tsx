@@ -7,6 +7,7 @@ import { animeClientApi } from "@/lib/api/animeClient";
 import { PlayCircle, CheckCircle, Sparkles, CalendarDays, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { clsx } from "clsx";
+import { createClient } from "@/lib/supabase/client";
 
 interface AnimeRaw {
   slug?: string;
@@ -42,6 +43,20 @@ export default function HomePage() {
   const [recent, setRecent] = useState<unknown[]>([]);
   const [popular, setPopular] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<any>(null);
+  const supabase = createClient();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   useEffect(() => {
     async function loadData() {
@@ -134,6 +149,68 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="space-y-20 md:space-y-32">
+            {/* Welcome Banner */}
+            <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 md:p-8 backdrop-blur-md shadow-2xl">
+              {/* Background gradient mesh */}
+              <div className="absolute -top-24 -left-24 w-80 h-80 bg-accent-purple/10 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-accent-blue/10 blur-[100px] rounded-full pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
+                  {user ? (
+                    <>
+                      <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-accent-purple/40 shadow-[0_0_15px_rgba(139,92,246,0.3)] shrink-0 bg-bg-secondary">
+                        <img
+                          src={user.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id}
+                          alt="Avatar"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                          Selamat Datang Kembali, <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-purple to-accent-blue">{user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}</span>! 👋
+                        </h2>
+                        <p className="text-text-secondary text-xs md:text-sm mt-1 font-medium">
+                          Senang melihatmu lagi. Yuk lanjutkan menonton anime favoritmu hari ini!
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent-purple/20 to-accent-blue/20 border border-white/10 flex items-center justify-center text-3xl shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.2)] animate-pulse">
+                        ✨
+                      </div>
+                      <div>
+                        <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
+                          Selamat Datang di <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-purple to-accent-blue">QQ</span>! 🎬
+                        </h2>
+                        <p className="text-text-secondary text-xs md:text-sm mt-1 font-medium max-w-xl">
+                          Nikmati pengalaman streaming anime sub Indo terupdate dengan kualitas visual premium dan server super kencang tanpa gangguan iklan.
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {!user && (
+                  <div className="shrink-0 flex items-center gap-3 w-full md:w-auto justify-center">
+                    <Link
+                      href="/login"
+                      className="px-6 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all hover:scale-105 text-center w-1/2 md:w-auto"
+                    >
+                      Masuk Akun
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all hover:scale-105 text-center w-1/2 md:w-auto"
+                    >
+                      Daftar Gratis
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Section: Trending / Terpopuler */}
             {popular.length > 0 && (
               <div className="relative py-12 px-6 md:px-12 rounded-3xl glass-panel border border-white/5 overflow-hidden">
