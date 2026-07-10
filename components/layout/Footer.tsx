@@ -80,9 +80,6 @@ export function Footer() {
             <p className="text-text-muted text-xs">
               © {new Date().getFullYear()} QQ. All rights reserved.
             </p>
-            <p className="text-text-muted text-xs flex items-center gap-1">
-              Dibuat dengan <span className="text-accent-pink animate-pulse">❤️</span> untuk pecinta anime Indonesia
-            </p>
           </div>
         </div>
       </div>
