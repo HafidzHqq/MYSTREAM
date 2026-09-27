@@ -35,26 +35,24 @@ export default function LoginClient() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-accent-purple/10 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-accent-blue/10 blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden relative bg-transparent mx-auto">
-              <Image src="/logo.jpg" alt="QQ" fill className="object-contain" unoptimized />
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-2 group">
+            <div className="relative w-10 h-10 rounded-xl-full overflow-hidden border border-white/15 group-hover:border-sky-400/40 transition-colors">
+              <Image src="/logo.jpg" alt="AniStream" fill className="object-cover" unoptimized />
             </div>
+            <span className="font-extrabold text-xl tracking-tight text-white group-hover:text-sky-400 transition-colors">
+              ANISTREAM
+            </span>
           </Link>
-          <p className="text-text-muted text-sm mt-2">Masuk untuk akses fitur lengkap</p>
+          <p className="text-text-muted text-xs sm:text-sm">Masuk untuk mengakses riwayat dan daftar anime favorit</p>
         </div>
 
-        <div className="glass rounded-3xl border border-white/8 p-8 shadow-card">
-          <h1 className="text-2xl font-display font-bold text-text-primary mb-6">Selamat Datang</h1>
+        <div className="rounded-xl bg-bg-secondary/90 border border-white/[0.08] p-6 sm:p-8 shadow-2xl">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-6">Masuk ke Akun</h1>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs sm:text-sm">{error}</div>
           )}
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -72,9 +70,9 @@ export default function LoginClient() {
                   setError(err.message || "Gagal login dengan Google.");
                 }
               }}
-              className="w-full py-3 rounded-xl bg-white text-black font-semibold hover:bg-gray-100 transition-all flex items-center justify-center gap-3"
+              className="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-zinc-100 text-black font-semibold text-xs sm:text-sm transition-all flex items-center justify-center gap-2.5 shadow-sm"
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -83,44 +81,44 @@ export default function LoginClient() {
               Lanjutkan dengan Google
             </button>
 
-            <div className="relative flex items-center py-2">
-              <div className="flex-grow border-t border-white/10"></div>
-              <span className="flex-shrink-0 mx-4 text-text-muted text-sm">Atau dengan Email</span>
-              <div className="flex-grow border-t border-white/10"></div>
+            <div className="relative flex items-center py-1">
+              <div className="flex-grow border-t border-white/[0.08]"></div>
+              <span className="flex-shrink-0 mx-3 text-text-muted text-xs uppercase tracking-wider">Atau Email</span>
+              <div className="flex-grow border-t border-white/[0.08]"></div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Email</label>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
                   placeholder="nama@email.com"
-                  className="w-full pl-10 pr-4 py-3 bg-bg-card border border-white/8 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50 transition-all" />
+                  className="w-full pl-10 pr-4 py-2.5 bg-bg-card border border-white/[0.08] rounded-xl text-white placeholder:text-text-muted text-xs sm:text-sm focus:outline-none focus:border-sky-500/50 transition-all" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Password</label>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
                   required placeholder="••••••••"
-                  className="w-full pl-10 pr-12 py-3 bg-bg-card border border-white/8 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50 transition-all" />
+                  className="w-full pl-10 pr-10 py-2.5 bg-bg-card border border-white/[0.08] rounded-xl text-white placeholder:text-text-muted text-xs sm:text-sm focus:outline-none focus:border-sky-500/50 transition-all" />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors">
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
             <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs sm:text-sm transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Memproses...</> : "Masuk"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-text-muted text-sm">
+            <p className="text-text-muted text-xs">
               Belum punya akun?{" "}
-              <Link href="/register" className="text-accent-purple hover:underline font-medium">Daftar sekarang</Link>
+              <Link href="/register" className="text-sky-400 hover:underline font-semibold">Daftar sekarang</Link>
             </p>
           </div>
         </div>

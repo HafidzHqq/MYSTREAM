@@ -213,20 +213,20 @@ export function VideoPlayer({
   const currentQuality = resolvedServers[activeServer]?.quality || "auto";
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-black border border-white/5 shadow-card">
+    <div className="rounded-xl overflow-hidden bg-black border border-white/[0.08] shadow-2xl">
       
       {/* Quality & Server Selector Header */}
-      <div className="flex items-center gap-2 p-3.5 bg-bg-card border-b border-white/5 overflow-x-auto scrollbar-hide">
-        <Server className="w-4 h-4 text-accent-purple flex-shrink-0" />
+      <div className="flex items-center gap-2 p-3 bg-bg-card/90 border-b border-white/[0.06] overflow-x-auto scrollbar-hide">
+        <Server className="w-4 h-4 text-indigo-400 flex-shrink-0" />
         
         {/* Quality Badge */}
-        <span className="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-accent-purple/20 text-accent-purple border border-accent-purple/20 flex-shrink-0">
+        <span className="px-2.5 py-1 rounded-xl text-[10px] font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-300 border border-indigo-500/20 flex-shrink-0">
           {currentQuality}
         </span>
 
         {resolvedServers.length > 1 && (
           <>
-            <div className="w-px h-5 bg-white/10 flex-shrink-0" />
+            <div className="w-px h-4 bg-white/10 flex-shrink-0" />
             <div className="flex gap-1.5">
               {resolvedServers.map((server, i) => (
                 <button
@@ -235,8 +235,8 @@ export function VideoPlayer({
                   className={clsx(
                     "px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex-shrink-0",
                     activeServer === i
-                      ? "bg-accent-purple text-white shadow-glow"
-                      : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
+                      ? "bg-white text-black font-bold shadow-sm"
+                      : "bg-white/5 text-text-secondary hover:bg-white/10 hover:text-white"
                   )}
                 >
                   {server.name}
@@ -268,7 +268,7 @@ export function VideoPlayer({
                 console.error("Fullscreen/Rotation error:", err);
               }
             }}
-            className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-all"
+            className="p-1.5 rounded-xl text-text-muted hover:text-white hover:bg-white/10 transition-all"
             title="Fullscreen & Rotate (HP)"
           >
             <Maximize className="w-4 h-4 text-accent-blue" />
@@ -278,7 +278,7 @@ export function VideoPlayer({
           <button
             onClick={() => setShowSettings(!showSettings)}
             className={clsx(
-              "p-1.5 rounded-lg transition-all",
+              "p-1.5 rounded-xl transition-all",
               showSettings ? "bg-accent-purple/20 text-accent-purple" : "text-text-muted hover:text-text-primary hover:bg-white/5"
             )}
             title="Pengaturan"
@@ -305,7 +305,7 @@ export function VideoPlayer({
                         handleServer(firstInGroup, firstInGroup.idx);
                       }}
                       className={clsx(
-                        "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
+                        "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all",
                         currentQuality === q
                           ? "bg-accent-purple text-white shadow-glow"
                           : "bg-white/5 text-text-secondary hover:bg-white/10"
@@ -325,7 +325,7 @@ export function VideoPlayer({
                 <button
                   onClick={() => setAutoPlay(!autoPlay)}
                   className={clsx(
-                    "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5",
                     autoPlay ? "bg-emerald-500/20 text-emerald-400" : "bg-white/5 text-text-secondary hover:bg-white/10"
                   )}
                 >
@@ -335,7 +335,7 @@ export function VideoPlayer({
                 <button
                   onClick={() => setIsMuted(!isMuted)}
                   className={clsx(
-                    "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5",
                     isMuted ? "bg-red-500/20 text-red-400" : "bg-white/5 text-text-secondary hover:bg-white/10"
                   )}
                 >
@@ -349,7 +349,7 @@ export function VideoPlayer({
       )}
 
       {/* Main Player Display Area */}
-      <div className="relative video-container bg-bg-secondary w-full min-h-[300px]">
+      <div id="video-player-container" className="relative video-container bg-bg-secondary w-full min-h-[300px]">
         {loading ? (
           /* Loading State */
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-bg-card gap-3">

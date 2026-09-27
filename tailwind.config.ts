@@ -10,48 +10,43 @@ const config: Config = {
     extend: {
       colors: {
         bg: {
-          primary: "#0B132B",
-          secondary: "#111C3A",
-          card: "rgba(17, 28, 58, 0.7)",
-          overlay: "rgba(11,19,43,0.8)",
+          primary: "#0A0D14",
+          secondary: "#111622",
+          card: "#151B2B",
+          cardHover: "#1C2337",
+          overlay: "rgba(10, 13, 20, 0.85)",
         },
         accent: {
-          purple: "#8b5cf6",
-          blue: "#00E5FF", // Electric Cyan
-          pink: "#ec4899",
-          yellow: "#eab308",
-          cyan: "#00E5FF", // Electric Cyan
-          green: "#10b981",
+          purple: "#6366F1", // Indigo / Modern violet
+          blue: "#38BDF8", // Sky blue
+          pink: "#F43F5E",
+          yellow: "#FBBF24",
+          cyan: "#06B6D4",
+          green: "#10B981",
         },
         text: {
-          primary: "#f9fafb",
-          secondary: "#d1d5db",
-          muted: "#6C7A89", // Steel Gray
+          primary: "#F8FAFC",
+          secondary: "#94A3B8",
+          muted: "#64748B",
         },
         border: {
-          DEFAULT: "rgba(108,122,137,0.2)",
-          hover: "rgba(0,229,255,0.3)",
+          DEFAULT: "rgba(255, 255, 255, 0.07)",
+          hover: "rgba(255, 255, 255, 0.15)",
         },
       },
       backgroundImage: {
-        "gradient-primary": "linear-gradient(135deg, #0B132B 0%, #00E5FF 100%)",
-        "gradient-hero": "linear-gradient(to top, #0B132B 0%, transparent 80%)",
-        "gradient-card": "linear-gradient(to top, rgba(11,19,43,0.9) 0%, transparent 60%)",
-        "gradient-dark": "radial-gradient(circle at top right, rgba(0,229,255,0.15), transparent 40%)",
+        "gradient-primary": "linear-gradient(135deg, #6366F1 0%, #4F46E5 100%)",
+        "gradient-hero": "linear-gradient(to top, #0A0D14 0%, transparent 80%)",
+        "gradient-card": "linear-gradient(to top, rgba(10,13,20,0.95) 0%, transparent 60%)",
       },
       fontFamily: {
         sans: ["Outfit", "Inter", "system-ui", "sans-serif"],
         display: ["Outfit", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        brutal: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-        "brutal-hover": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-        "brutal-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-        "brutal-lg": "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
-        glow: "0 0 20px rgba(139,92,246,0.3)",
-        "glow-blue": "0 0 20px rgba(59,130,246,0.3)",
-        card: "0 4px 6px -1px rgba(0,0,0,0.2)",
-        "card-hover": "0 10px 15px -3px rgba(0,0,0,0.3)",
+        card: "0 4px 20px -2px rgba(0, 0, 0, 0.4)",
+        "card-hover": "0 12px 28px -6px rgba(0, 0, 0, 0.6)",
+        glow: "0 0 20px rgba(99, 102, 241, 0.25)",
       },
       animation: {
         "fade-in": "fadeIn 0.5s ease-in-out",

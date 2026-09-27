@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Loader2, Trophy, Star } from "lucide-react";
+import { Trophy, Star } from "lucide-react";
 import { AnimeCard } from "@/components/ui/AnimeCard";
+import { AnimeCardSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { animeClientApi } from "@/lib/api/animeClient";
 
 interface AnimeItem {
@@ -62,53 +63,75 @@ export default function TopRatingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen pt-24 pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex flex-col items-center justify-center text-center mb-12 relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-accent-yellow/20 blur-[100px] rounded-full pointer-events-none" />
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(251,191,36,0.3)] relative z-10">
-          <Trophy className="w-8 h-8 text-white" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-600 tracking-tight mb-4 relative z-10">
-          TOP 70 ANIME
-        </h1>
-        <p className="text-text-muted text-lg max-w-2xl mx-auto relative z-10">
-          Daftar anime dengan rating tertinggi yang paling direkomendasikan untuk Anda tonton.
-        </p>
-      </div>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <Loader2 className="w-12 h-12 text-accent-yellow animate-spin" />
-          <p className="text-lg font-bold text-accent-yellow animate-pulse tracking-widest">
-            MENGHITUNG RATING...
+    <div className="min-h-screen py-8 md:py-10 bg-bg-primary mt-14 md:mt-16">
+      <div className="w-full 2xl:px-16 mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-xl-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-2.5">
+            <Trophy className="w-3.5 h-3.5" />
+            Hall of Fame
+          </div>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            Top 70 Anime Terbaik
+          </h1>
+          <p className="text-text-secondary text-xs sm:text-sm mt-1">
+            Daftar anime dengan penilaian dan rating tertinggi berdasarkan ulasan penonton.
           </p>
         </div>
-      ) : topAnime.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 relative z-10">
-          {topAnime.map((anime, index) => (
-            <div key={anime.slug || anime.animeId} className="relative group">
-              <div className="absolute -top-3 -left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-white font-black text-xl shadow-[0_4px_20px_rgba(245,158,11,0.5)] z-20 group-hover:scale-110 group-hover:rotate-12 transition-transform border border-yellow-300/50">
-                {index + 1}
-              </div>
-              <AnimeCard
-                slug={anime.slug || anime.animeId || ""}
-                title={anime.title || ""}
-                thumbnail={anime.poster || anime.thumbnail || ""}
-                type={anime.type}
-                episode={anime.episode || anime.latestEp}
-                score={anime.score}
-              />
+
+        {loading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4 md:gap-5">
+            {Array.from({ length: 18 }).map((_, i) => (
+              <AnimeCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : topAnime.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4 md:gap-5">
+            {topAnime.map((anime, index) => {
+              const rank = index + 1;
+              const isFirst = rank === 1;
+              const isSecond = rank === 2;
+              const isThird = rank === 3;
+
+              return (
+                <div key={anime.slug || anime.animeId} className="relative group">
+                  {/* Subtle, elegant rank tag */}
+                  <div
+                    className={`absolute top-2 left-2 z-20 px-2 py-0.5 rounded-xl text-[11px] font-black tracking-wider shadow-lg pointer-events-none transition-transform group-hover:scale-105 ${
+                      isFirst
+                        ? "bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-amber-500/20"
+                        : isSecond
+                        ? "bg-gradient-to-r from-slate-200 to-zinc-400 text-black shadow-white/10"
+                        : isThird
+                        ? "bg-gradient-to-r from-amber-700 to-yellow-800 text-white shadow-amber-900/30"
+                        : "bg-black/80 backdrop-blur-md text-white/90 border border-white/15"
+                    }`}
+                  >
+                    #{rank}
+                  </div>
+                  <AnimeCard
+                    slug={anime.slug || anime.animeId || ""}
+                    title={anime.title || ""}
+                    thumbnail={anime.poster || anime.thumbnail || ""}
+                    type={anime.type}
+                    episode={anime.episode || anime.latestEp}
+                    score={anime.score}
+                    provider="samehadaku"
+                  />
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-20 flex flex-col items-center justify-center rounded-xl bg-bg-secondary/60 border border-white/[0.06] p-6 max-w-lg mx-auto">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-xl-full bg-white/[0.05] border border-white/[0.08] flex items-center justify-center text-text-muted">
+              <Star className="w-5 h-5" />
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-20 bg-white/5 border border-white/10 rounded-3xl backdrop-blur-md">
-          <Star className="w-16 h-16 text-text-muted mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white mb-2">Belum Ada Data</h2>
-          <p className="text-text-muted">Tidak dapat mengambil data rating anime saat ini.</p>
-        </div>
-      )}
+            <h3 className="text-base font-bold text-white mb-1">Belum Ada Data</h3>
+            <p className="text-text-muted text-xs sm:text-sm">Tidak dapat memuat peringkat anime saat ini.</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -18,19 +18,19 @@ export function PaginationControls({ currentPage, totalPage, baseUrl }: Paginati
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8 flex-wrap">
+    <div className="flex items-center justify-center gap-1.5 mt-10 flex-wrap">
       {currentPage > 1 && (
         <Link
           href={`${baseUrl}?page=${currentPage - 1}`}
-          className="p-2 rounded-xl glass border border-white/10 hover:bg-white/10 text-text-secondary hover:text-text-primary transition-all"
+          className="p-2 rounded-xl bg-bg-secondary/80 border border-white/[0.08] hover:bg-white/[0.08] text-text-secondary hover:text-white transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
         </Link>
       )}
       {pages[0] > 1 && (
         <>
-          <Link href={`${baseUrl}?page=1`} className="px-3 py-2 rounded-xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all">1</Link>
-          {pages[0] > 2 && <span className="text-text-muted">…</span>}
+          <Link href={`${baseUrl}?page=1`} className="px-3 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-white bg-bg-secondary/50 border border-white/[0.06] hover:bg-white/[0.08] transition-all">1</Link>
+          {pages[0] > 2 && <span className="text-text-muted px-1">…</span>}
         </>
       )}
       {pages.map(p => (
@@ -38,10 +38,10 @@ export function PaginationControls({ currentPage, totalPage, baseUrl }: Paginati
           key={p}
           href={`${baseUrl}?page=${p}`}
           className={clsx(
-            "px-3 py-2 rounded-xl text-sm font-medium transition-all",
+            "px-3 py-1.5 rounded-xl text-xs font-bold transition-all border",
             p === currentPage
-              ? "bg-gradient-primary text-white shadow-glow"
-              : "text-text-secondary hover:text-text-primary hover:bg-white/5"
+              ? "bg-white text-black border-white shadow-sm"
+              : "bg-bg-secondary/60 text-text-secondary hover:text-white border-white/[0.06] hover:bg-white/[0.08]"
           )}
         >
           {p}
@@ -49,14 +49,14 @@ export function PaginationControls({ currentPage, totalPage, baseUrl }: Paginati
       ))}
       {pages[pages.length - 1] < totalPage && (
         <>
-          {pages[pages.length - 1] < totalPage - 1 && <span className="text-text-muted">…</span>}
-          <Link href={`${baseUrl}?page=${totalPage}`} className="px-3 py-2 rounded-xl text-sm text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all">{totalPage}</Link>
+          {pages[pages.length - 1] < totalPage - 1 && <span className="text-text-muted px-1">…</span>}
+          <Link href={`${baseUrl}?page=${totalPage}`} className="px-3 py-1.5 rounded-xl text-xs font-semibold text-text-secondary hover:text-white bg-bg-secondary/50 border border-white/[0.06] hover:bg-white/[0.08] transition-all">{totalPage}</Link>
         </>
       )}
       {currentPage < totalPage && (
         <Link
           href={`${baseUrl}?page=${currentPage + 1}`}
-          className="p-2 rounded-xl glass border border-white/10 hover:bg-white/10 text-text-secondary hover:text-text-primary transition-all"
+          className="p-2 rounded-xl bg-bg-secondary/80 border border-white/[0.08] hover:bg-white/[0.08] text-text-secondary hover:text-white transition-all"
         >
           <ChevronRight className="w-4 h-4" />
         </Link>

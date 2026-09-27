@@ -118,14 +118,14 @@ export function FavoriteButton({
   return (
     <button
       onClick={toggle}
-      className={`flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-2xl border font-bold transition-all duration-300 ${
+      className={`flex items-center justify-center gap-2 w-full px-5 py-3 rounded-xl border text-sm font-semibold transition-all duration-200 ${
         isFav
-          ? "bg-pink-500/20 border-pink-500/40 text-pink-400 hover:bg-pink-500/30"
-          : "bg-white/5 border-white/10 text-text-secondary hover:text-text-primary hover:border-pink-500/30"
+          ? "bg-rose-500/15 border-rose-500/30 text-rose-400 hover:bg-rose-500/25"
+          : "bg-white/[0.06] border-white/[0.08] text-text-secondary hover:text-white hover:bg-white/[0.10]"
       }`}
     >
-      <Heart className={`w-5 h-5 transition-all ${isFav ? "fill-pink-400" : ""}`} />
-      {isFav ? "Favorit ❤️" : "Tambah Favorit"}
+      <Heart className={`w-4 h-4 transition-all ${isFav ? "fill-rose-400 text-rose-400" : ""}`} />
+      <span>{isFav ? "Tersimpan di Favorit" : "Tambah ke Favorit"}</span>
     </button>
   );
 }

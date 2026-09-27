@@ -1,10 +1,10 @@
 export function AnimeCardSkeleton() {
   return (
-    <div className="rounded-2xl bg-bg-secondary/40 backdrop-blur-md border border-white/5 overflow-hidden">
-      <div className="aspect-[2/3] skeleton" />
-      <div className="p-4 space-y-3 bg-gradient-to-t from-bg-secondary to-transparent -mt-8 relative z-10 pt-10">
-        <div className="h-4 skeleton rounded-md w-full" />
-        <div className="h-4 skeleton rounded-md w-3/4" />
+    <div className="flex flex-col h-full rounded-xl overflow-hidden bg-bg-secondary/70 border border-white/[0.06]">
+      <div className="aspect-[2/3] w-full skeleton" />
+      <div className="p-3 sm:p-3.5 space-y-2 bg-bg-card/40 flex-1">
+        <div className="h-3.5 skeleton rounded-xl w-4/5" />
+        <div className="h-3 skeleton rounded-xl w-1/2" />
       </div>
     </div>
   );
@@ -29,8 +29,8 @@ export function HeroSkeleton() {
 export function SectionSkeleton() {
   return (
     <section className="py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="h-8 skeleton rounded-lg w-48 mb-8" />
+      <div className="w-full 2xl:px-16 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-8 skeleton rounded-xl w-48 mb-8" />
         <AnimeGridSkeleton count={6} />
       </div>
     </section>

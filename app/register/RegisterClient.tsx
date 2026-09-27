@@ -39,14 +39,14 @@ export default function RegisterClient() {
   if (success) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
-        <div className="glass rounded-3xl border border-white/8 p-8 max-w-md w-full text-center shadow-card">
-          <div className="text-5xl mb-4">🎉</div>
-          <h2 className="text-2xl font-display font-bold text-text-primary mb-2">Registrasi Berhasil!</h2>
-          <p className="text-text-muted text-sm mb-6">
-            Cek email kamu untuk verifikasi akun, lalu login untuk menikmati QQ.
+        <div className="rounded-xl bg-bg-secondary/90 border border-white/[0.08] p-8 max-w-md w-full text-center shadow-2xl">
+          <div className="text-4xl mb-3">🎉</div>
+          <h2 className="text-xl font-bold text-white mb-2">Registrasi Berhasil!</h2>
+          <p className="text-text-muted text-xs sm:text-sm mb-6">
+            Periksa email Anda untuk verifikasi akun, lalu masuk untuk mulai menonton.
           </p>
           <Link href="/login"
-            className="inline-flex items-center justify-center w-full py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all">
+            className="inline-flex items-center justify-center w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs sm:text-sm transition-all">
             Masuk Sekarang
           </Link>
         </div>
@@ -56,70 +56,68 @@ export default function RegisterClient() {
 
   return (
     <div className="min-h-screen bg-bg-primary flex items-center justify-center p-4">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-accent-blue/10 blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-accent-purple/10 blur-3xl" />
-      </div>
-
-      <div className="relative w-full max-w-md">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/" className="inline-flex items-center">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center overflow-hidden relative bg-transparent mx-auto">
-              <Image src="/logo.jpg" alt="QQ" fill className="object-contain" unoptimized />
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-2 group">
+            <div className="relative w-10 h-10 rounded-xl-full overflow-hidden border border-white/15 group-hover:border-sky-400/40 transition-colors">
+              <Image src="/logo.jpg" alt="AniStream" fill className="object-cover" unoptimized />
             </div>
+            <span className="font-extrabold text-xl tracking-tight text-white group-hover:text-sky-400 transition-colors">
+              ANISTREAM
+            </span>
           </Link>
-          <p className="text-text-muted text-sm mt-2">Buat akun gratis dan mulai nonton</p>
+          <p className="text-text-muted text-xs sm:text-sm">Buat akun untuk menyimpan anime favorit dan riwayat</p>
         </div>
 
-        <div className="glass rounded-3xl border border-white/8 p-8 shadow-card">
-          <h1 className="text-2xl font-display font-bold text-text-primary mb-6">Daftar Akun</h1>
+        <div className="rounded-xl bg-bg-secondary/90 border border-white/[0.08] p-6 sm:p-8 shadow-2xl">
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-6">Daftar Akun</h1>
 
           {error && (
-            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">{error}</div>
+            <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs sm:text-sm">{error}</div>
           )}
 
           <form onSubmit={handleRegister} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Username</label>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">Username</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input type="text" value={username} onChange={e => setUsername(e.target.value)} required
                   placeholder="username_kamu"
-                  className="w-full pl-10 pr-4 py-3 bg-bg-card border border-white/8 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50 transition-all" />
+                  className="w-full pl-10 pr-4 py-2.5 bg-bg-card border border-white/[0.08] rounded-xl text-white placeholder:text-text-muted text-xs sm:text-sm focus:outline-none focus:border-sky-500/50 transition-all" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Email</label>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">Email</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
                   placeholder="nama@email.com"
-                  className="w-full pl-10 pr-4 py-3 bg-bg-card border border-white/8 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50 transition-all" />
+                  className="w-full pl-10 pr-4 py-2.5 bg-bg-card border border-white/[0.08] rounded-xl text-white placeholder:text-text-muted text-xs sm:text-sm focus:outline-none focus:border-sky-500/50 transition-all" />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1.5">Password</label>
+              <label className="block text-xs font-semibold text-text-secondary mb-1.5">Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
                 <input type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)}
                   required minLength={6} placeholder="Min. 6 karakter"
-                  className="w-full pl-10 pr-12 py-3 bg-bg-card border border-white/8 rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent-purple/50 transition-all" />
+                  className="w-full pl-10 pr-10 py-2.5 bg-bg-card border border-white/[0.08] rounded-xl text-white placeholder:text-text-muted text-xs sm:text-sm focus:outline-none focus:border-sky-500/50 transition-all" />
                 <button type="button" onClick={() => setShowPw(!showPw)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors">
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-text-muted hover:text-white transition-colors">
                   {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
             <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-xl bg-gradient-primary text-white font-semibold hover:shadow-glow transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2">
+              className="w-full py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold text-xs sm:text-sm transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2">
               {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Memproses...</> : "Daftar Sekarang"}
             </button>
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-text-muted text-sm">
+            <p className="text-text-muted text-xs">
               Sudah punya akun?{" "}
-              <Link href="/login" className="text-accent-purple hover:underline font-medium">Masuk</Link>
+              <Link href="/login" className="text-sky-400 hover:underline font-semibold">Masuk</Link>
             </p>
           </div>
         </div>

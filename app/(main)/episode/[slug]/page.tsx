@@ -68,9 +68,9 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg-primary">
-        <div className="bg-white border-[3px] border-black p-6 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex items-center gap-4">
-          <Loader2 className="w-8 h-8 text-black animate-spin" />
-          <span className="text-xl font-black uppercase text-black">Memuat...</span>
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-white/70 animate-spin" />
+          <span className="text-sm font-medium text-text-secondary">Memuat episode...</span>
         </div>
       </div>
     );
@@ -79,9 +79,13 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
   if (!episode) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-bg-primary">
-        <div className="bg-white border-[3px] border-black p-8 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-center max-w-md">
-          <h1 className="text-2xl font-black text-black uppercase mb-4">Episode Tidak Ditemukan</h1>
-          <Link href="/" className="inline-block w-full px-6 py-3 bg-accent-yellow border-[3px] border-black text-black font-black uppercase brutal-hover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="p-8 rounded-2xl bg-bg-secondary border border-white/[0.08] text-center max-w-md shadow-xl">
+          <h1 className="text-xl font-bold text-white mb-2">Episode Tidak Ditemukan</h1>
+          <p className="text-text-muted text-sm mb-6">Episode yang Anda cari mungkin telah dihapus atau tidak tersedia.</p>
+          <Link
+            href="/"
+            className="inline-block w-full px-6 py-2.5 bg-white text-black font-semibold text-sm rounded-xl hover:bg-slate-200 transition-colors"
+          >
             Kembali ke Beranda
           </Link>
         </div>
@@ -129,28 +133,32 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
     : (episode.nextEpisode?.slug || episode.nextEpisode?.episodeId);
 
   return (
-    <div className="min-h-screen bg-bg-primary mt-16 md:mt-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-bg-primary pt-6 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Breadcrumb */}
-        <div className="flex flex-wrap items-center gap-2 text-sm text-black font-bold mb-6 bg-white border-2 border-black inline-flex px-4 py-2 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-          <Link href="/" className="hover:underline flex items-center gap-1 uppercase">
-            <Home className="w-4 h-4" /> Beranda
+        {/* Breadcrumb Navigation */}
+        <div className="flex items-center gap-2 text-xs sm:text-sm text-text-muted mb-5 overflow-x-auto whitespace-nowrap scrollbar-hide py-1">
+          <Link href="/" className="hover:text-white flex items-center gap-1.5 transition-colors">
+            <Home className="w-3.5 h-3.5" />
+            <span>Beranda</span>
           </Link>
-          <span className="font-black">/</span>
+          <span className="text-white/20">/</span>
           {(episode.animeSlug || (episode as any).animeId) && (
             <>
-              <Link href={`/anime/${episode.animeSlug || (episode as any).animeId}`} className="hover:underline uppercase">
+              <Link
+                href={`/anime/${episode.animeSlug || (episode as any).animeId}`}
+                className="hover:text-white transition-colors"
+              >
                 {episode.animeTitle || episode.title?.split(' Episode')[0] || "Detail Anime"}
               </Link>
-              <span className="font-black">/</span>
+              <span className="text-white/20">/</span>
             </>
           )}
-          <span className="text-black uppercase truncate max-w-[200px] sm:max-w-xs">{episode.title}</span>
+          <span className="text-white font-medium truncate max-w-[200px] sm:max-w-xs">{episode.title}</span>
         </div>
 
-        {/* Video Player */}
-        <div className="mb-6 brutal-box bg-white border-[3px] border-black p-4 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        {/* Video Player Container */}
+        <div className="rounded-2xl overflow-hidden bg-bg-secondary border border-white/[0.08] shadow-2xl">
           <VideoPlayer
             streamUrl={defaultUrl}
             servers={resolvedServers}
@@ -163,34 +171,34 @@ export default function EpisodePage({ params, searchParams }: PageProps) {
         </div>
 
         {/* Navigation & Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mt-8 gap-4">
+        <div className="flex items-center justify-between mt-6 gap-3">
           {prevSlug ? (
             <Link
               href={`/episode/${prevSlug}?provider=${provider}`}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-white border-[3px] border-black text-black font-black uppercase brutal-hover hover:bg-gray-200 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all group"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bg-secondary hover:bg-bg-card text-text-secondary hover:text-white border border-white/[0.08] transition-all text-xs sm:text-sm font-semibold group"
             >
-              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform stroke-[3]" />
-              Eps Sebelumnya
+              <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+              <span>Eps Sebelumnya</span>
             </Link>
           ) : (
-            <div className="hidden sm:block" />
+            <div />
           )}
 
           {nextSlug ? (
             <Link
               href={`/episode/${nextSlug}?provider=${provider}`}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-accent-yellow border-[3px] border-black text-black font-black uppercase brutal-hover hover:bg-accent-pink shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all group"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white text-black hover:bg-slate-200 font-semibold transition-all text-xs sm:text-sm shadow-md group"
             >
-              Eps Selanjutnya
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform stroke-[3]" />
+              <span>Eps Selanjutnya</span>
+              <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           ) : (
-            <div className="hidden sm:block" />
+            <div />
           )}
         </div>
 
         {/* Komentar Section */}
-        <div className="mt-12 bg-white border-[3px] border-black p-6 md:p-8 brutal-box shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+        <div className="mt-10 rounded-2xl bg-bg-secondary/60 border border-white/[0.08] p-5 sm:p-8">
           <CommentSection episodeSlug={slug} />
         </div>
       </div>
