@@ -148,44 +148,32 @@ export default function OngoingPage() {
   }, [items, sortBy]);
 
   return (
-    <div className="min-h-screen py-10 bg-bg-primary mt-14 md:mt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-8 bg-bg-primary">
+      <div className="w-full 2xl:px-16 mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Header Section */}
-        <div className="relative mb-8 rounded-3xl overflow-hidden glass border border-white/5 p-8 md:p-12">
-          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-red-500/10" />
-          <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-500/20 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-          
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 p-[1px] shadow-[0_0_30px_rgba(249,115,22,0.3)] shrink-0">
-              <div className="w-full h-full rounded-2xl bg-bg-secondary flex items-center justify-center">
-                <Flame className="w-8 h-8 text-orange-500" />
-              </div>
+        {/* Header & Controls Section */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8 pb-5 border-b border-white/[0.06]">
+          <div>
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-xl-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400">Musim Ini</span>
             </div>
-            <div>
-              <h1 className="text-3xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/80 mb-3 tracking-tight">
-                Anime Ongoing
-              </h1>
-              <p className="text-text-secondary font-medium text-lg">
-                Daftar anime yang sedang tayang dan update episode terbaru musim ini.
-              </p>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              Anime Ongoing
+            </h1>
+            <p className="text-text-secondary text-xs sm:text-sm mt-1">
+              Daftar anime yang sedang tayang dengan update episode terbaru.
+            </p>
           </div>
-        </div>
 
-        {/* Filters */}
-        {items.length > 0 && (
-          <div className="flex flex-col sm:flex-row justify-between items-center mb-8 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-            <div className="flex items-center gap-3 mb-4 sm:mb-0">
-              <Filter className="w-5 h-5 text-orange-500" />
-              <span className="text-white font-semibold">Urutkan Data Saat Ini:</span>
-            </div>
-            <div className="flex gap-2 bg-black/40 p-1 rounded-xl w-full sm:w-auto overflow-x-auto">
+          {/* Sort Controls */}
+          {items.length > 0 && (
+            <div className="flex items-center gap-1 p-1 rounded-xl bg-bg-secondary border border-white/[0.06] shrink-0 self-start sm:self-auto">
               <button 
                 onClick={() => setSortBy("terbaru")}
                 className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all",
-                  sortBy === "terbaru" ? "bg-orange-500 text-white shadow-lg" : "text-text-muted hover:text-white"
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all",
+                  sortBy === "terbaru" ? "bg-white text-black font-bold shadow-sm" : "text-text-muted hover:text-white"
                 )}
               >
                 Terbaru
@@ -193,39 +181,36 @@ export default function OngoingPage() {
               <button 
                 onClick={() => setSortBy("az")}
                 className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2",
-                  sortBy === "az" ? "bg-orange-500 text-white shadow-lg" : "text-text-muted hover:text-white"
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1",
+                  sortBy === "az" ? "bg-white text-black font-bold shadow-sm" : "text-text-muted hover:text-white"
                 )}
               >
-                <ArrowDownWideNarrow className="w-4 h-4" /> Abjad A-Z
+                A-Z
               </button>
               <button 
                 onClick={() => setSortBy("za")}
                 className={clsx(
-                  "px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-2",
-                  sortBy === "za" ? "bg-orange-500 text-white shadow-lg" : "text-text-muted hover:text-white"
+                  "px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center gap-1",
+                  sortBy === "za" ? "bg-white text-black font-bold shadow-sm" : "text-text-muted hover:text-white"
                 )}
               >
-                <ArrowDownWideNarrow className="w-4 h-4 rotate-180" /> Z-A
+                Z-A
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {items.length === 0 && !loading ? (
-          <div className="text-center py-32 flex flex-col items-center justify-center glass-panel rounded-3xl border border-white/5">
-            <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-              <span className="text-4xl">🌸</span>
-            </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Data Tidak Ditemukan</h3>
-            <p className="text-text-muted text-lg max-w-md">Koneksi ke server bermasalah atau data kosong. Silakan periksa jaringan internet Anda.</p>
-            <button onClick={() => window.location.reload()} className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold transition-all border border-white/5 hover:border-white/20">
+          <div className="text-center py-24 flex flex-col items-center justify-center rounded-xl bg-bg-secondary/40 border border-white/[0.06] p-8">
+            <h3 className="text-xl font-bold text-white mb-2">Data Tidak Ditemukan</h3>
+            <p className="text-text-muted text-sm max-w-md mb-6">Koneksi ke server bermasalah atau data kosong. Silakan periksa jaringan internet Anda.</p>
+            <button onClick={() => window.location.reload()} className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-all border border-white/10">
               Muat Ulang
             </button>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 sm:gap-6 mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-5 mb-12">
               {displayedItems.map((anime, index) => (
                 <AnimeCard
                   key={anime.slug || anime.animeId || index}
@@ -251,17 +236,17 @@ export default function OngoingPage() {
             
             {loading && items.length > 0 && (
               <div className="flex justify-center py-8">
-                <div className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-full px-8 py-3.5 shadow-lg">
-                  <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
-                  <span className="text-sm font-semibold text-white tracking-wide">Menarik lebih banyak data dari server...</span>
+                <div className="flex items-center gap-2.5 bg-bg-secondary border border-white/[0.08] rounded-xl-full px-6 py-2.5 shadow-md">
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span className="text-xs font-medium text-text-secondary">Memuat lebih banyak anime...</span>
                 </div>
               </div>
             )}
             
             {!hasMore && items.length > 0 && (
               <div className="text-center py-12">
-                <p className="inline-block px-6 py-3 rounded-full bg-white/5 border border-white/10 text-text-muted text-sm font-medium">
-                  Semua {items.length} anime telah dimuat 🎉
+                <p className="inline-block px-5 py-2 rounded-xl-full bg-bg-secondary/60 border border-white/[0.06] text-text-muted text-xs font-medium">
+                  Semua {items.length} anime telah dimuat
                 </p>
               </div>
             )}

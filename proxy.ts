@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
-// Auth tidak diperlukan - middleware hanya meneruskan semua request
-export function middleware(request: NextRequest) {
+// Auth tidak diperlukan - proxy hanya meneruskan semua request
+export default function proxy(request: NextRequest) {
   return NextResponse.next({ request });
 }
 
