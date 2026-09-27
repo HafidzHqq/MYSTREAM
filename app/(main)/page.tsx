@@ -4,9 +4,7 @@ import { HeroBanner } from "@/components/home/HeroBanner";
 import { AnimeSection } from "@/components/home/AnimeSection";
 import { SectionSkeleton } from "@/components/ui/AnimeCardSkeleton";
 import { animeClientApi } from "@/lib/api/animeClient";
-import { PlayCircle, CheckCircle, Sparkles, CalendarDays, TrendingUp } from "lucide-react";
 import Link from "next/link";
-import { clsx } from "clsx";
 import { createClient } from "@/lib/supabase/client";
 
 interface AnimeRaw {
@@ -94,139 +92,35 @@ export default function HomePage() {
   );
 
   return (
-    <div className="pb-16 bg-bg-primary min-h-screen">
+    <div className="pb-20 bg-bg-primary min-h-screen">
       {/* Hero Banner */}
       {!loading && heroItems.length > 0 ? (
         <HeroBanner items={heroItems as any} />
       ) : (
-        <div className="h-[60vh] min-h-[500px] w-full relative flex items-center justify-center overflow-hidden bg-bg-secondary">
-          <div className="absolute inset-0 bg-gradient-to-r from-accent-purple/20 to-accent-blue/20 blur-3xl opacity-50"></div>
-          <div className="relative z-10 text-center px-4 glass-panel p-10 max-w-2xl rounded-3xl animate-fade-in border border-white/10 shadow-2xl">
-            <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white to-white/70 mb-6 tracking-tight">QQ</h1>
-            <p className="text-text-secondary text-lg md:text-xl font-medium max-w-lg mx-auto">
-              Nonton anime sub indo terupdate, lengkap dengan visual memanjakan mata.
-            </p>
-          </div>
+        <div className="h-[480px] sm:h-[560px] md:h-[640px] w-full relative flex items-center justify-center bg-bg-secondary/40">
+          <div className="w-10 h-10 border-2 border-white/20 border-t-white rounded-xl-full animate-spin" />
         </div>
       )}
 
-      {/* Quick Navigation Cards */}
-      <section className="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 md:-mt-16 mb-16">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-          {[
-            { label: "Anime Ongoing", href: "/ongoing", icon: PlayCircle, desc: "Update episode terbaru", gradient: "from-orange-500/20 to-red-500/20", iconColor: "text-orange-400" },
-            { label: "Anime Completed", href: "/completed", icon: CheckCircle, desc: "Tamat & siap maraton", gradient: "from-green-500/20 to-emerald-500/20", iconColor: "text-emerald-400" },
-            { label: "Favorit Saya", href: "/favorites", icon: Sparkles, desc: "Anime koleksi favoritmu", gradient: "from-blue-500/20 to-cyan-500/20", iconColor: "text-cyan-400" },
-            { label: "Jadwal Rilis", href: "/schedule", icon: CalendarDays, desc: "Jadwal update mingguan", gradient: "from-purple-500/20 to-pink-500/20", iconColor: "text-pink-400" },
-          ].map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group relative overflow-hidden p-6 rounded-2xl glass border border-white/10 hover:-translate-y-1 hover:shadow-2xl hover:border-white/20 transition-all duration-300 flex flex-col items-center text-center`}
-            >
-              <div className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              
-              <div className="relative z-10 w-14 h-14 mb-4 rounded-full bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all duration-300">
-                <item.icon className={`w-7 h-7 ${item.iconColor}`} />
-              </div>
-              
-              <h3 className="relative z-10 font-bold text-white text-base md:text-lg mb-1 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-white/70">
-                {item.label}
-              </h3>
-              <p className="relative z-10 text-xs md:text-sm text-text-muted font-medium">{item.desc}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* Sections Container */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20 md:space-y-32 relative z-10">
+      <div className="w-full 2xl:px-16 mx-auto px-4 sm:px-6 lg:px-8 space-y-10 md:space-y-14 relative z-10 pt-10 sm:pt-14">
         {loading ? (
-          <div className="space-y-16">
+          <div className="space-y-12">
             <SectionSkeleton />
             <SectionSkeleton />
             <SectionSkeleton />
           </div>
         ) : (
-          <div className="space-y-20 md:space-y-32">
-            {/* Welcome Banner */}
-            <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-white/5 p-6 md:p-8 backdrop-blur-md shadow-2xl">
-              {/* Background gradient mesh */}
-              <div className="absolute -top-24 -left-24 w-80 h-80 bg-accent-purple/10 blur-[100px] rounded-full pointer-events-none" />
-              <div className="absolute -bottom-24 -right-24 w-80 h-80 bg-accent-blue/10 blur-[100px] rounded-full pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-5 text-center md:text-left flex-col md:flex-row">
-                  {user ? (
-                    <>
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-accent-purple/40 shadow-[0_0_15px_rgba(139,92,246,0.3)] shrink-0 bg-bg-secondary">
-                        <img
-                          src={user.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id}
-                          alt="Avatar"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div>
-                        <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                          Selamat Datang Kembali, <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-purple to-accent-blue">{user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}</span>! 👋
-                        </h2>
-                        <p className="text-text-secondary text-xs md:text-sm mt-1 font-medium">
-                          Senang melihatmu lagi. Yuk lanjutkan menonton anime favoritmu hari ini!
-                        </p>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-accent-purple/20 to-accent-blue/20 border border-white/10 flex items-center justify-center text-3xl shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.2)] animate-pulse">
-                        ✨
-                      </div>
-                      <div>
-                        <h2 className="text-xl md:text-2xl font-black text-white tracking-tight">
-                          Selamat Datang di <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-purple to-accent-blue">QQ</span>! 🎬
-                        </h2>
-                        <p className="text-text-secondary text-xs md:text-sm mt-1 font-medium max-w-xl">
-                          Nikmati pengalaman streaming anime sub Indo terupdate dengan kualitas visual premium dan server super kencang tanpa gangguan iklan.
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {!user && (
-                  <div className="shrink-0 flex items-center gap-3 w-full md:w-auto justify-center">
-                    <Link
-                      href="/login"
-                      className="px-6 py-2.5 rounded-full text-sm font-bold bg-gradient-to-r from-accent-purple to-accent-blue text-white hover:shadow-[0_0_20px_rgba(139,92,246,0.4)] transition-all hover:scale-105 text-center w-1/2 md:w-auto"
-                    >
-                      Masuk Akun
-                    </Link>
-                    <Link
-                      href="/register"
-                      className="px-6 py-2.5 rounded-full text-sm font-bold bg-white/5 border border-white/10 hover:bg-white/10 text-white transition-all hover:scale-105 text-center w-1/2 md:w-auto"
-                    >
-                      Daftar Gratis
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-
+          <div className="space-y-10 md:space-y-14">
             {/* Section: Trending / Terpopuler */}
             {popular.length > 0 && (
-              <div className="relative py-12 px-6 md:px-12 rounded-3xl glass-panel border border-white/5 overflow-hidden">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent-purple/10 blur-[120px] rounded-full mix-blend-screen pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-accent-blue/10 blur-[100px] rounded-full mix-blend-screen pointer-events-none" />
-                
-                <div className="relative z-10">
-                  <AnimeSection
-                    title="Trending Minggu Ini"
-                    subtitle="Anime paling populer dan paling banyak dicari minggu ini"
-                    items={popular as any}
-                    viewAllHref="/ongoing"
-                    provider="samehadaku"
-                  />
-                </div>
-              </div>
+              <AnimeSection
+                title="Trending Minggu Ini"
+                subtitle="Anime paling populer dan paling banyak ditonton"
+                items={popular as any}
+                viewAllHref="/ongoing"
+                provider="samehadaku"
+              />
             )}
 
             {/* Section: Recent Updates */}
@@ -265,13 +159,15 @@ export default function HomePage() {
         )}
 
         {!loading && recent.length === 0 && ongoing.length === 0 && completed.length === 0 && (
-          <div className="py-32 text-center flex flex-col items-center justify-center">
-            <div className="w-24 h-24 mb-6 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-              <span className="text-4xl">🔌</span>
-            </div>
-            <h3 className="text-2xl md:text-3xl font-bold text-white mb-3">Gagal Memuat Katalog</h3>
-            <p className="text-text-muted text-lg max-w-md">Koneksi ke server bermasalah. Silakan periksa jaringan internet Anda atau muat ulang halaman.</p>
-            <button onClick={() => window.location.reload()} className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold transition-all border border-white/5 hover:border-white/20">
+          <div className="py-24 text-center flex flex-col items-center justify-center rounded-xl bg-bg-secondary/50 border border-white/[0.06] p-8">
+            <h3 className="text-xl font-bold text-white mb-2">Gagal Memuat Katalog Anime</h3>
+            <p className="text-text-muted text-sm max-w-md mb-6">
+              Koneksi ke server bermasalah. Silakan periksa jaringan internet Anda atau muat ulang halaman.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-6 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white font-medium text-sm transition-all border border-white/10"
+            >
               Muat Ulang
             </button>
           </div>
