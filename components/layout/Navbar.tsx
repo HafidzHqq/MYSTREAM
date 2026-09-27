@@ -2,19 +2,17 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Search, Menu, X, Sparkles } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { clsx } from "clsx";
 import { createClient } from "@/lib/supabase/client";
 
-const navLinks: { href: string; label: string; badge?: boolean }[] = [
+const navLinks: { href: string; label: string; }[] = [
   { href: "/", label: "Beranda" },
-  { href: "/ongoing", label: "Ongoing", badge: true },
+  { href: "/ongoing", label: "Ongoing" },
   { href: "/completed", label: "Completed" },
   { href: "/top-rating", label: "Top 70" },
-  { href: "/favorites", label: "Favorit" },
   { href: "/schedule", label: "Jadwal" },
-  { href: "/history", label: "History" },
 ];
 
 export function Navbar() {
@@ -36,18 +34,31 @@ export function Navbar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      if (e.key === "Escape" && searchOpen) {
+        setSearchOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [searchOpen]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -63,162 +74,198 @@ export function Navbar() {
     <>
       <nav
         className={clsx(
-          "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-          isScrolled ? "glass border-b border-white/5 py-2 shadow-lg" : "bg-transparent py-4"
+          "fixed top-0 left-0 right-0 z-50 transition-all duration-300 w-full",
+          isScrolled
+            ? "bg-[#0A0D14]/65 backdrop-blur-[24px] backdrop-saturate-[150%] border-b border-white/[0.08]"
+            : "bg-gradient-to-b from-black/50 to-transparent border-b border-transparent"
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
+        {/* Apple-style container: max width large, standard padding */}
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16 gap-4">
+            
             {/* Logo */}
-            <Link href="/" className="flex items-center group gap-3">
-              <div className="relative w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border-2 border-white/10 group-hover:border-accent-purple/50 transition-colors shadow-glow-blue">
-                <Image src="/logo.jpg" alt="QQ Logo" fill className="object-cover" unoptimized />
+            <Link href="/" className="flex items-center gap-2 shrink-0 group">
+              <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-xl-full overflow-hidden">
+                <Image src="/logo.jpg" alt="AniStream" fill className="object-cover" unoptimized />
               </div>
+              <span className="font-extrabold text-[17px] tracking-tight text-white/90 group-hover:text-white transition-colors hidden sm:inline-block">
+                ANISTREAM
+              </span>
             </Link>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden xl:flex items-center gap-1 bg-white/5 border border-white/10 rounded-full px-2 py-1.5 backdrop-blur-md">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={clsx(
-                    "px-4 py-2 text-sm font-semibold rounded-full transition-all relative group",
-                    pathname === link.href
-                      ? "text-white bg-white/10"
-                      : "text-text-secondary hover:text-white hover:bg-white/5"
-                  )}
-                >
-                  {link.label}
-                  {link.badge && (
-                    <span className="absolute 1 top-2 -right-1 w-2 h-2 rounded-full bg-accent-blue shadow-[0_0_8px_rgba(59,130,246,0.8)]" />
-                  )}
-                </Link>
-              ))}
+            {/* Desktop Nav Links (Centered aesthetically) */}
+            <div className="hidden lg:flex items-center justify-center flex-1 gap-8">
+              {navLinks.map((link) => {
+                const isActive = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={clsx(
+                      "text-[14px] font-medium tracking-wide transition-colors duration-200",
+                      isActive
+                        ? "text-white"
+                        : "text-white/60 hover:text-white"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
-              {/* Profile/Login Button */}
+            <div className="flex items-center justify-end gap-5 shrink-0">
+              {/* Search Button */}
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="text-white/70 hover:text-white transition-colors active:opacity-50"
+                aria-label="Cari anime"
+              >
+                <Search className="w-5 h-5" strokeWidth={2} />
+              </button>
+
+              {/* Profile / Login */}
               {user ? (
-                <div className="relative group/profile">
-                  <button className="flex items-center gap-2 p-1.5 pr-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all">
+                <div className="relative group/profile hidden sm:block">
+                  <button className="flex items-center gap-2.5 outline-none">
+                    <span className="text-[14px] font-medium text-white/70 group-hover/profile:text-white transition-colors">
+                      {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
+                    </span>
                     <img 
                       src={user.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id} 
                       alt="Profile" 
-                      className="w-7 h-7 rounded-full bg-bg-secondary"
+                      className="w-7 h-7 rounded-xl-full object-cover border border-white/[0.08]"
                     />
-                    <span className="text-xs font-semibold text-text-secondary hidden sm:block">
-                      {user.user_metadata?.full_name?.split(' ')[0] || user.email?.split('@')[0]}
-                    </span>
                   </button>
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-bg-secondary border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all duration-200 p-2">
-                    <Link href="/history" className="block px-3 py-2 text-sm text-text-primary hover:bg-white/5 rounded-lg mb-1">Riwayat Nonton</Link>
+                  {/* Dropdown (Apple style menu) */}
+                  <div className="absolute top-full right-0 mt-3 w-52 bg-[#1C1C1E]/80 backdrop-blur-[40px] backdrop-saturate-[200%] border border-white/[0.08] rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] opacity-0 invisible group-hover/profile:opacity-100 group-hover/profile:visible transition-all duration-200 p-1 z-50">
+                    <Link href="/history" className="block px-4 py-2.5 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-xl transition-colors">Riwayat Nonton</Link>
+                    <Link href="/favorites" className="block px-4 py-2.5 text-[14px] font-medium text-white/90 hover:bg-white/10 rounded-xl transition-colors">Favorit Saya</Link>
+                    <div className="h-px w-full bg-white/[0.08] my-1" />
                     <button 
                       onClick={async () => {
                         const supabase = createClient();
                         await supabase.auth.signOut();
                       }}
-                      className="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-lg"
+                      className="w-full text-left px-4 py-2.5 text-[14px] font-medium text-[#FF453A] hover:bg-white/10 rounded-xl transition-colors"
                     >
-                      Logout
+                      Keluar
                     </button>
                   </div>
                 </div>
               ) : (
-                <Link href="/login" className="px-4 py-1.5 rounded-full text-sm font-semibold bg-accent-blue/10 text-accent-blue hover:bg-accent-blue hover:text-white transition-colors border border-accent-blue/20 hidden sm:block">
+                <Link href="/login" className="px-4 py-1.5 rounded-xl-full text-[14px] font-semibold bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/[0.08] hidden sm:block">
                   Masuk
                 </Link>
               )}
 
-              {/* Search Button */}
-              <button
-                onClick={() => setSearchOpen(true)}
-                className="p-2.5 rounded-full text-text-secondary hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
-                aria-label="Cari anime"
-              >
-                <Search className="w-5 h-5" />
-              </button>
-
               {/* Mobile Menu Toggle */}
               <button
-                onClick={() => setMobileOpen(!mobileOpen)}
-                className="xl:hidden p-2.5 rounded-xl text-text-secondary hover:text-white hover:bg-white/10 transition-all border border-transparent hover:border-white/10"
+                onClick={() => setMobileOpen(true)}
+                className="lg:hidden text-white/70 hover:text-white transition-colors active:opacity-50"
               >
-                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                <Menu className="w-6 h-6" strokeWidth={2} />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Menu (Apple style sliding drawer) */}
         <div className={clsx(
-          "xl:hidden absolute top-full left-0 right-0 bg-bg-primary/95 backdrop-blur-xl border-b border-white/5 transition-all duration-300 overflow-hidden",
-          mobileOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
+          "lg:hidden fixed inset-0 top-[56px] sm:top-[64px] bg-[#000000]/70 backdrop-blur-[30px] backdrop-saturate-[180%] transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)] z-40 overflow-hidden",
+          mobileOpen ? "opacity-100 visible translate-y-0" : "opacity-0 invisible -translate-y-4"
         )}>
-          <div className="px-4 py-4 flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className={clsx(
-                  "flex items-center justify-between px-4 py-3 rounded-xl text-base font-semibold transition-all",
-                  pathname === link.href
-                    ? "bg-white/10 text-white border border-white/5"
-                    : "text-text-secondary hover:bg-white/5 hover:text-white"
-                )}
+          <div className="px-6 py-8 flex flex-col h-full overflow-y-auto">
+            {/* Header (iOS style large title) */}
+            <div className="text-[28px] font-bold text-white mb-6">Menu</div>
+
+            {user && (
+              <div className="flex items-center gap-4 p-4 mb-6 rounded-xl bg-white/[0.05] border border-white/[0.05]">
+                <img src={user.user_metadata?.avatar_url || "https://api.dicebear.com/7.x/avataaars/svg?seed=" + user.id} alt="Profile" className="w-12 h-12 rounded-xl-full border border-white/10" />
+                <div>
+                  <div className="text-white text-[16px] font-semibold">{user.user_metadata?.full_name || "Pengguna"}</div>
+                  <div className="text-white/50 text-[13px]">{user.email}</div>
+                </div>
+              </div>
+            )}
+            
+            <div className="flex flex-col gap-0 border-t border-white/[0.08]">
+              {[...navLinks, {href: "/history", label: "Riwayat Nonton"}, {href: "/favorites", label: "Favorit Saya"}].map(link => (
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="px-2 py-4 text-[17px] font-medium text-white/90 hover:text-white border-b border-white/[0.08] flex justify-between items-center transition-colors active:bg-white/5"
+                >
+                  {link.label}
+                  <span className="text-white/20">›</span>
+                </Link>
+              ))}
+            </div>
+
+            {user ? (
+              <button 
+                onClick={async () => {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                  setMobileOpen(false);
+                }}
+                className="mt-8 py-4 rounded-xl text-center text-[17px] font-semibold text-[#FF453A] bg-white/[0.05] active:bg-white/10 transition-colors"
               >
-                {link.label}
-                {link.badge && (
-                  <span className="flex items-center gap-1 text-[10px] uppercase font-bold text-accent-blue bg-accent-blue/10 px-2 py-1 rounded-md">
-                    <Sparkles className="w-3 h-3" /> Baru
-                  </span>
-                )}
+                Keluar
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="mt-8 py-4 rounded-xl text-center text-[17px] font-semibold text-black bg-white active:bg-gray-200 transition-colors"
+              >
+                Masuk ke Akun
               </Link>
-            ))}
+            )}
           </div>
         </div>
       </nav>
 
-      {/* Search Overlay */}
-      {searchOpen && (
-        <div
-          className="fixed inset-0 z-[100] bg-bg-primary/80 backdrop-blur-xl flex items-start justify-center pt-24 px-4 animate-fade-in"
-          onClick={(e) => e.target === e.currentTarget && setSearchOpen(false)}
-        >
-          <form onSubmit={handleSearch} className="w-full max-w-2xl relative animate-slide-up">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-accent-purple to-accent-blue rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity"></div>
-              <div className="relative flex items-center bg-bg-secondary border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-                <Search className="w-6 h-6 text-text-muted ml-5" />
-                <input
-                  ref={searchRef}
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Cari judul anime favoritmu..."
-                  className="w-full px-4 py-5 bg-transparent text-white placeholder:text-text-muted text-lg focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 mr-2 bg-white/10 hover:bg-white/20 text-white font-medium rounded-xl transition-colors backdrop-blur-md border border-white/5"
-                >
-                  Cari
-                </button>
-              </div>
+      {/* Search Modal (iOS style overlay) */}
+      <div 
+        className={clsx(
+          "fixed inset-0 z-[110] bg-black/50 backdrop-blur-[20px] backdrop-saturate-[180%] flex items-start justify-center pt-24 px-4 sm:px-0 transition-all duration-300",
+          searchOpen ? "opacity-100 visible" : "opacity-0 invisible"
+        )}
+        onClick={(e) => e.target === e.currentTarget && setSearchOpen(false)}
+      >
+        <div className={clsx(
+          "w-full max-w-2xl relative transition-all duration-400 ease-[cubic-bezier(0.32,0.72,0,1)]",
+          searchOpen ? "scale-100 translate-y-0 opacity-100" : "scale-95 -translate-y-8 opacity-0"
+        )}>
+          <form onSubmit={handleSearch} className="flex flex-col gap-4">
+            <div className="flex items-center bg-white/[0.08] border border-white/[0.1] rounded-xl p-2 px-4 shadow-[0_8px_32px_rgba(0,0,0,0.3)] backdrop-blur-3xl">
+              <Search className="w-5 h-5 text-white/50 shrink-0" strokeWidth={2} />
+              <input
+                ref={searchRef}
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Pencarian..."
+                className="w-full bg-transparent text-white placeholder:text-white/40 text-[17px] px-3 py-2.5 focus:outline-none"
+              />
+              <button 
+                type="button" 
+                onClick={() => setSearchOpen(false)} 
+                className="shrink-0 p-1.5 bg-white/10 hover:bg-white/20 rounded-xl-full text-white/70 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" strokeWidth={2.5} />
+              </button>
             </div>
-            
-            <button
-              type="button"
-              onClick={() => setSearchOpen(false)}
-              className="absolute -top-12 right-0 p-2 text-text-muted hover:text-white bg-bg-secondary/50 rounded-full backdrop-blur-md border border-white/10 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <div className="text-center">
+              <span className="text-white/40 text-[13px] font-medium tracking-wide">TEKAN ENTER UNTUK MENCARI</span>
+            </div>
           </form>
         </div>
-      )}
+      </div>
     </>
   );
 }
